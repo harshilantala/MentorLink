@@ -1,0 +1,230 @@
+/* MeetingForm.css */
+.meeting-form-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .form-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 24px;
+    transition: all 0.3s ease;
+  }
+  
+  .form-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+    position: relative;
+  }
+  
+  .input-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .form-group textarea,
+  .form-group input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    outline: none;
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+  
+  .form-group input {
+    padding-right: 40px;
+  }
+  
+  .input-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    transition: all 0.3s ease;
+  }
+  
+  .form-group label {
+    position: absolute;
+    left: 6px;
+    top: -10px;
+    font-size: 14px;
+    color: #666;
+    padding: 0 10px;
+    background-color: #fff;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+  
+  .form-group.has-value label,
+  .form-group.focused label {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .form-group.focused textarea,
+  .form-group.focused input {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    background-color: #fff;
+  }
+  
+  .form-group:hover textarea,
+  .form-group:hover input {
+    border-color: #d0d0d0;
+    background-color: #fff;
+  }
+  
+  .form-group.focused .input-icon {
+    color: #3b82f6;
+  }
+  
+  .date-picker {
+    margin-top: 24px;
+  }
+  
+  .date-label {
+    display: block;
+    font-size: 14px;
+    color: #666;
+    margin-top: 8px;
+    margin-left: 6px;
+    transition: all 0.3s ease;
+  }
+  
+  .error-message {
+    color: #e53e3e;
+    font-size: 14px;
+    margin-top: 8px;
+    margin-left: 6px;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .required-message {
+    color: #3b82f6;
+    font-size: 14px;
+    margin-top: 8px;
+    margin-left: 6px;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .submit-container {
+    margin-top: 24px;
+  }
+  
+  .submit-button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .submit-button:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  .submit-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  }
+  
+  .submit-button::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: -100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s ease;
+  }
+  
+  .submit-button:hover::after {
+    left: 100%;
+  }
+  
+  /* Animation keyframes */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Modal transitions */
+  .overlay-enter {
+    opacity: 0;
+  }
+  
+  .overlay-enter-active {
+    opacity: 1;
+    transition: opacity 300ms ease-in-out;
+  }
+  
+  .overlay-exit {
+    opacity: 1;
+  }
+  
+  .overlay-exit-active {
+    opacity: 0;
+    transition: opacity 300ms ease-in-out;
+  }
+  
+  .modal-enter {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  
+  .modal-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: all 300ms ease-in-out;
+  }
+  
+  .modal-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .modal-exit-active {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 300ms ease-in-out;
+  }

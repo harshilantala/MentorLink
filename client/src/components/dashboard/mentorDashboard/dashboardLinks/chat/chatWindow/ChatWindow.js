@@ -171,93 +171,268 @@ const ChatWindow = ({ selectedChat, curChat }) => {
         dispatch(getOlderMessages(history, selectedChat, page, setOldMessageLoading));
     };
 
-    console.log("chats", chats);
-    console.log("message", message);
-    console.log("messages", messages);
-    // console.log("selected chat", selectedChat);
+    // Styles
+    const containerStyle = {
+        width: "100%",
+        backgroundColor: "#ffffff",
+        borderRadius: "16px",
+        height: "100%",
+        flexShrink: 0,
+        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        transition: "all 0.3s ease"
+    };
+
+    const headerStyle = {
+        width: "100%",
+        background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+        borderTopLeftRadius: "16px",
+        borderTopRightRadius: "16px",
+        padding: "16px",
+        boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)"
+    };
+
+    const headerContentStyle = {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        gap: "16px",
+        height: "100%",
+    };
+
+    const headerImageStyle = {
+        height: "48px",
+        width: "48px",
+        borderRadius: "50%",
+        objectFit: "cover",
+        border: "2px solid white"
+    };
+
+    const headerTextStyle = {
+        color: "white",
+        fontWeight: "600",
+        fontSize: "1.1rem"
+    };
+
+    const messageContainerStyle = {
+        width: "100%",
+        height: "calc(80% - 16px)",
+        overflowY: "auto",
+        display: "flex",
+        flexDirection: "column-reverse",
+        padding: "20px",
+        position: "relative",
+        background: "#f9fafb"
+    };
+
+    const loadButtonStyle = {
+        justifySelf: "center",
+        padding: "8px 14px",
+        borderRadius: "20px",
+        fontSize: "0.75rem",
+        backgroundColor: "#f3f4f6",
+        color: "#6366f1",
+        marginBottom: "12px",
+        marginTop: "8px",
+        fontWeight: "500",
+        border: "none",
+        cursor: "pointer",
+        transition: "all 0.2s ease",
+        boxShadow: "0 2px 5px rgba(0, 0, 0, 0.05)"
+    };
+
+    const loadButtonHoverStyle = {
+        backgroundColor: "#e0e7ff",
+        color: "#4338ca",
+        transform: "translateY(-1px)",
+        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)"
+    };
+
+    const inputAreaStyle = {
+        width: "100%",
+        padding: "16px",
+        backgroundColor: "#f3f4f6",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "12px",
+        borderBottomLeftRadius: "16px",
+        borderBottomRightRadius: "16px",
+        marginTop: "auto"
+    };
+
+    const textInputContainerStyle = {
+        width: "85%",
+        position: "relative",
+        flexGrow: 1
+    };
+
+    const textInputStyle = {
+        width: "100%",
+        padding: "14px 18px",
+        borderRadius: "24px",
+        maxHeight: "120px",
+        backgroundColor: "white",
+        outline: "none",
+        fontSize: "0.95rem",
+        breakWord: "break-word",
+        overflowY: "auto",
+        border: "1px solid #e5e7eb",
+        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.02)",
+        transition: "border 0.2s ease, box-shadow 0.2s ease"
+    };
+
+    const textInputFocusStyle = {
+        border: "1px solid #a5b4fc",
+        boxShadow: "0 0 0 3px rgba(165, 180, 252, 0.2)"
+    };
+
+    const placeholderStyle = {
+        color: "#9ca3af",
+        position: "absolute",
+        top: "50%",
+        transform: "translateY(-50%)",
+        left: "20px",
+        pointerEvents: "none",
+        transition: "opacity 0.2s ease",
+        fontSize: "0.95rem"
+    };
+
+    const sendButtonStyle = {
+        backgroundColor: disable ? "#d1d5db" : "#4f46e5",
+        padding: "12px",
+        borderRadius: "50%",
+        color: "white",
+        border: "none",
+        cursor: disable ? "not-allowed" : "pointer",
+        width: "48px",
+        height: "48px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "all 0.2s ease",
+        flexShrink: 0,
+        boxShadow: disable ? "none" : "0 2px 5px rgba(79, 70, 229, 0.3)"
+    };
+
+    const sendButtonHoverStyle = {
+        backgroundColor: disable ? "#d1d5db" : "#4338ca",
+        transform: disable ? "none" : "translateY(-2px)",
+        boxShadow: disable ? "none" : "0 4px 8px rgba(79, 70, 229, 0.4)"
+    };
+
+    const loadingContainerStyle = {
+        width: "100%",
+        height: "80%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#f9fafb"
+    };
+
+    const [sendBtnHover, setSendBtnHover] = useState(false);
+    const [loadBtnHover, setLoadBtnHover] = useState(false);
+    const [inputFocus, setInputFocus] = useState(false);
 
     return (
-        <>
-            <div className="w-3/5 bg-white rounded-md h-full flex-shrink-0">
-                {localStorage.getItem("selectedChat") && (
-                    <div className="w-full bg-gray-600 rounded-t-md">
-                        <div className="flex items-center justify-start h-full px-5 py-2.5 gap-x-4 text-white">
-                            <img
-                                src={
-                                    curChat.avatar === ""
-                                        ? `https://api.dicebear.com/9.x/personas/svg`
-                                        : curChat.avatar
-                                }
-                                alt="IMG"
-                                className="h-12 w-12 rounded-full"
-                            />
-                            <h4>{curChat.name}</h4>
-                        </div>
+        <div style={containerStyle}>
+            {localStorage.getItem("selectedChat") && (
+                <div style={headerStyle}>
+                    <div style={headerContentStyle}>
+                        <img
+                            src={
+                                curChat?.avatar
+                                  ? curChat.avatar
+                                  : `https://api.dicebear.com/9.x/personas/svg?seed=${curChat?.name}`
+                              }                                                         
+                            alt="Profile"
+                            style={headerImageStyle}
+                        />
+                        <h4 style={headerTextStyle}>{curChat.name}</h4>
                     </div>
-                )}
-                {isLoading ? (
-                    <div className="w-full h-4/5 px-10 pb-7 flex items-center justify-center">
-                        <Loading myStyle={"w-8 h-8"} />
-                    </div>
-                ) : (
-                    <div
-                        id="scrollable"
-                        onScroll={toggleVisible}
-                        className="w-full h-4/5 overflow-auto flex items-center flex-col-reverse px-12 pb-5 relative"
-                    >
-                        <div ref={scrollMessage}></div>
-                        {message.length !== 0 &&
-                            messages
-                                .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
-                                .map((message) => (
-                                    <Message key={message._id} message={message} uid={uid} />
-                                ))}
-                        {messages.length !== 0 &&
-                            (oldMessageLoading ? (
-                                <Loading myStyle={"h-6 w-6 mb-2 mt-1"} />
-                            ) : (
-                                <button
-                                    onClick={loadOlderMessages}
-                                    title="Load message"
-                                    className={`justify-self-center p-1.5 rounded-md disabled:opacity-50 text-gray-400 text-xs bg-gray-100 mb-2 mt-1 hover:text-gray-600 transition-all`}
-                                >
-                                    Load previous messages
-                                </button>
+                </div>
+            )}
+            {isLoading ? (
+                <div style={loadingContainerStyle}>
+                    <Loading myStyle={"w-8 h-8"} />
+                </div>
+            ) : (
+                <div
+                    id="scrollable"
+                    onScroll={toggleVisible}
+                    style={messageContainerStyle}
+                >
+                    <div ref={scrollMessage}></div>
+                    {message.length !== 0 &&
+                        messages
+                            .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+                            .map((message) => (
+                                <Message key={message._id} message={message} uid={uid} />
                             ))}
-                    </div>
-                )}
-
-                {visible && <ScrollToBottom scrollToBottom={scrollToBottom} />}
-
-                {localStorage.getItem("selectedChat") && (
-                    <div className="w-full h-1/10 bg-gray-600 flex items-center justify-center gap-x-6 mt-1 rounded-b-md">
-                        <div className="w-17/20 flex-shrink-0 relative">
-                            <div
-                                onFocus={focusPlaceHol}
-                                onBlur={blurPlaceHol}
-                                onKeyUp={check}
-                                contentEditable={true}
-                                className="px-2 py-3 rounded-md max-h-16 bg-white outline-none break-words overflow-y-auto"
-                            ></div>
-                            <h4
-                                className={`text-gray-400 absolute top-3 left-2 pointer-events-none ${placeHol}`}
+                    {messages.length !== 0 &&
+                        (oldMessageLoading ? (
+                            <Loading myStyle={"h-6 w-6 mb-2 mt-1"} />
+                        ) : (
+                            <button
+                                onClick={loadOlderMessages}
+                                title="Load message"
+                                style={loadBtnHover ? {...loadButtonStyle, ...loadButtonHoverStyle} : loadButtonStyle}
+                                onMouseEnter={() => setLoadBtnHover(true)}
+                                onMouseLeave={() => setLoadBtnHover(false)}
                             >
-                                Type something...
-                            </h4>
-                        </div>
+                                Load previous messages
+                            </button>
+                        ))}
+                </div>
+            )}
 
-                        <button
-                            title="Send message"
-                            className={`bg-green-500 p-2.5 rounded-md disabled:opacity-50 text-white`}
-                            onClick={sendMessage}
-                            disabled={disable}
+            {visible && <ScrollToBottom scrollToBottom={scrollToBottom} />}
+
+            {localStorage.getItem("selectedChat") && (
+                <div style={inputAreaStyle}>
+                    <div style={textInputContainerStyle}>
+                        <div
+                            onFocus={() => {
+                                focusPlaceHol();
+                                setInputFocus(true);
+                            }}
+                            onBlur={() => {
+                                blurPlaceHol();
+                                setInputFocus(false);
+                            }}
+                            onKeyUp={check}
+                            contentEditable={true}
+                            style={inputFocus ? {...textInputStyle, ...textInputFocusStyle} : textInputStyle}
+                        ></div>
+                        <h4
+                            style={{
+                                ...placeholderStyle,
+                                opacity: placeHol === "opacity-100" ? 1 : 0
+                            }}
                         >
-                            Send
-                        </button>
+                            Type something...
+                        </h4>
                     </div>
-                )}
-            </div>
-        </>
+
+                    <button
+                        title="Send message"
+                        style={sendBtnHover ? {...sendButtonStyle, ...sendButtonHoverStyle} : sendButtonStyle}
+                        onClick={sendMessage}
+                        disabled={disable}
+                        onMouseEnter={() => !disable && setSendBtnHover(true)}
+                        onMouseLeave={() => setSendBtnHover(false)}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M22 2L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="currentColor" fillOpacity="0.2"/>
+                        </svg>
+                    </button>
+                </div>
+            )}
+        </div>
     );
 };
 

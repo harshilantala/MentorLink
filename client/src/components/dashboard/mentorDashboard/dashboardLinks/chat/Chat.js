@@ -1,12 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ChatAlt2Icon from "../../../../../assets/icons/ChatAlt2Icon";
 import ChatSideBar from "./chatSideBar/ChatSideBar";
 import ChatWindow from "./chatWindow/ChatWindow";
-
-import { CSSTransition } from "react-transition-group";
-import { useState, useRef } from "react";
 import ChatModal from "./chatModal/ChatModal";
 import ModalOverlay from "../../../../modal/ModalOverlay";
+import "./ChatStyles.css"; // We'll create this file for our custom animations
 
 const Chat = () => {
     // api call to fetch all the chats
@@ -38,44 +36,71 @@ const Chat = () => {
     const modalRef = useRef(null);
     const overlayRef = useRef(null);
 
-    return (
-        <>
-            <div className="py-2 px-48 w-full h-full overflow-hidden relative">
-                <CSSTransition
-                    nodeRef={overlayRef}
-                    in={showModal}
-                    timeout={300}
-                    classNames="overlay"
-                    unmountOnExit
-                >
-                    <ModalOverlay nodeRef={overlayRef} />
-                </CSSTransition>
-                <CSSTransition
-                    nodeRef={modalRef}
-                    in={showModal}
-                    timeout={300}
-                    classNames="modal"
-                    unmountOnExit
-                >
-                    <ChatModal nodeRef={modalRef} setShowModal={setShowModal} />
-                </CSSTransition>
+    // Handle modal visibility with CSS transitions
+    useEffect(() => {
+        if (showModal) {
+            document.body.style.overflow = "hidden";
+            if (overlayRef.current) overlayRef.current.classList.add("overlay-visible");
+            if (modalRef.current) {
+                setTimeout(() => {
+                    modalRef.current.classList.add("modal-visible");
+                }, 50);
+            }
+        } else {
+            document.body.style.overflow = "";
+            if (overlayRef.current) overlayRef.current.classList.remove("overlay-visible");
+            if (modalRef.current) modalRef.current.classList.remove("modal-visible");
+        }
+    }, [showModal]);
 
-                <div className="bg-white flex w-full items-center justify-between p-3 mt-2 rounded-lg">
-                    <h2 className="text-gray-500">Chat</h2>
-                    <button
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center justify-between py-2 px-4 rounded-md bg-blue-600 hover:bg-blue-800 transition-colors text-white"
-                    >
-                        <ChatAlt2Icon alt={false} myStyle={"h-5 w-5 mr-2"} />
-                        Create a chat
-                    </button>
+    // Close modal on escape key
+    useEffect(() => {
+        const handleEsc = (event) => {
+            if (event.keyCode === 27) setShowModal(false);
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => {
+            window.removeEventListener('keydown', handleEsc);
+        };
+    }, []);
+
+    return (
+        <div className="chat-container">
+            {showModal && (
+                <>
+                    <div ref={overlayRef} className="modal-overlay" onClick={() => setShowModal(false)}></div>
+                    <div ref={modalRef} className="chat-modal">
+                        <ChatModal setShowModal={setShowModal} />
+                    </div>
+                </>
+            )}
+
+            <div className="chat-header">
+                <h2>Chat</h2>
+                <button
+                    onClick={() => setShowModal(true)}
+                    className="create-chat-btn"
+                >
+                    <ChatAlt2Icon alt={false} myStyle={"icon"} />
+                    <span>Create a chat</span>
+                </button>
+            </div>
+            
+            <div className="chat-content">
+                <div className="sidebar-container">
+                    <ChatSideBar 
+                        setChatSelection={setChatSelection} 
+                        setCurChat={setCurChat} 
+                    />
                 </div>
-                <div className="flex gap-x-5 h-cal w-full mt-5">
-                    <ChatSideBar setChatSelection={setChatSelection} setCurChat={setCurChat} />
-                    <ChatWindow selectedChat={selectedChat} curChat={curChat} />
+                <div className="chat-window-container">
+                    <ChatWindow 
+                        selectedChat={selectedChat} 
+                        curChat={curChat} 
+                    />
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

@@ -26,7 +26,7 @@ const SingleComment = ({
             />
             <div>
                 <div className="flex items-center justify-start">
-                    <h5>{`${author.firstname} ${author.middlename} ${author.lastname}`}</h5>
+                    <h5>{`${author.firstName} ${author.middleName} ${author.lastName}`}</h5>
                     <div className="ml-2 mr-2 w-1 h-1 rounded-full bg-black"></div>
                     <h6>{moment(comment.createdAt).fromNow()}</h6>
                     {uid.toString() === author._id.toString() && (

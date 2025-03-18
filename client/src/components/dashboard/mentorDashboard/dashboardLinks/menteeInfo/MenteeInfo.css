@@ -1,0 +1,318 @@
+/* MenteeInfo.css */
+
+.mentee-info-container {
+    height: 100%;
+    width: 100%;
+    padding: 1.5rem;
+    background-color: #f9fafb;
+    box-sizing: border-box;
+  }
+  
+  .mentee-info-content {
+    background-color: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Header Styles */
+  .mentee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .mentee-title h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .mentee-count {
+    display: flex;
+    align-items: center;
+    color: #6b7280;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+  }
+  
+  .count {
+    font-weight: 600;
+    color: #4f46e5;
+    margin-right: 0.25rem;
+  }
+  
+  /* Search Input Styles */
+  .search-container {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .search-input {
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    width: 18rem;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    background-color: #f9fafb;
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    background-color: white;
+    width: 20rem;
+  }
+  
+  .search-icon {
+    position: absolute;
+    top: 50%;
+    left: 0.75rem;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    transition: all 0.3s ease;
+  }
+  
+  .search-input:focus + .search-icon {
+    color: #4f46e5;
+  }
+  
+  /* Table Styles */
+  .table-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+  }
+  
+  .table-header {
+    display: grid;
+    grid-template-columns: 0.5fr 1.5fr 1fr 2fr 1fr 1fr 1fr 1fr;
+    background-color: #f3f4f6;
+    padding: 0.75rem 1rem;
+    font-weight: 500;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    transition: background-color 0.3s ease;
+  }
+  
+  .header-cell {
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+  }
+  
+  .sl-no {
+    justify-content: center;
+  }
+  
+  .address {
+    grid-column: span 2;
+  }
+  
+  .sort-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    position: relative;
+  }
+  
+  .sort-button::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0.5rem;
+    right: 0.5rem;
+    height: 2px;
+    background-color: #4f46e5;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  .sort-button:hover {
+    background-color: #f3f4f6;
+    color: #4f46e5;
+  }
+  
+  .sort-button:hover::after {
+    transform: scaleX(0.7);
+  }
+  
+  .sort-button.active {
+    color: #4f46e5;
+  }
+  
+  .sort-button.active::after {
+    transform: scaleX(1);
+  }
+  
+  .sort-icon {
+    width: 16px;
+    height: 16px;
+    margin-left: 0.5rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+  }
+  
+  .sort-button:hover .sort-icon {
+    transform: translateY(-1px);
+  }
+  
+  .sort-icon::before,
+  .sort-icon::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    transition: all 0.3s ease;
+  }
+  
+  .sort-icon::before {
+    border-bottom: 4px solid #9ca3af;
+    top: 2px;
+  }
+  
+  .sort-icon::after {
+    border-top: 4px solid #9ca3af;
+    bottom: 2px;
+  }
+  
+  .sort-button.active .sort-icon::before,
+  .sort-button.active .sort-icon::after {
+    border-bottom-color: #4f46e5;
+    border-top-color: #4f46e5;
+  }
+  
+  /* Table Body */
+  /* Table Body */
+.table-body {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    padding: 0.5rem;
+  }
+  
+  .table-body.transitioning {
+    opacity: 0.5;
+    transform: translateY(5px);
+  }
+  
+  .table-body::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .table-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+  
+  .table-body::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+  
+  .table-body::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+  
+  .no-mentees {
+    padding: 2rem;
+    text-align: center;
+    color: #6b7280;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    margin: 1rem;
+    animation: fadeIn 0.5s ease;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Animation for row transitions */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    .table-header {
+      grid-template-columns: 0.5fr 1.5fr 1fr 1.5fr 1fr 1fr 1fr 1fr;
+    }
+    
+    .search-input {
+      width: 16rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .mentee-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .search-container {
+      width: 100%;
+    }
+    
+    .search-input {
+      width: 100%;
+    }
+    
+    .search-input:focus {
+      width: 100%;
+    }
+    
+    .table-header {
+      font-size: 0.75rem;
+      padding: 0.5rem;
+    }
+    
+    .header-cell {
+      padding: 0.25rem;
+    }
+  }

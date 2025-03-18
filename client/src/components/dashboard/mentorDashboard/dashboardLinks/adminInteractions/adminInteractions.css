@@ -1,0 +1,317 @@
+/* Admin Interactions Styles */
+
+/* Global Styles */
+.admin-interactions {
+    height: 100%;
+    width: 100%;
+    padding: 1rem;
+    overflow: hidden;
+    background-color: #f5f7fa;
+    overflow-y: auto; 
+    max-height: calc(100vh - 10vh);
+  }
+
+  .admin-interactions::-webkit-scrollbar {
+    display: none; 
+  }
+  
+  .card {
+    border-radius: 12px;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: visible;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-content {
+    padding: 1rem;
+  }
+  
+  .card-header {
+    padding: 1rem;
+    background-color: #f8faff;
+    border-bottom: 1px solid #eaeef3;
+  }
+  
+  /* Tab Navigation */
+  .tabs-container {
+    margin-bottom: 1.5rem;
+    border-radius: 12px;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .tabs {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #eaeef3;
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+  
+  .tab.active {
+    color: #3f51b5;
+  }
+  
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #3f51b5;
+  }
+  
+  /* User Cards Grid */
+  .users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  
+  /* User Card */
+  .user-card {
+    animation: fadeIn 0.4s ease forwards;
+  }
+  
+  .user-card-content {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .user-avatar {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-info {
+    margin-left: 1rem;
+  }
+  
+  .user-name {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .user-details {
+    color: #666;
+    font-size: 0.875rem;
+  }
+  
+  .user-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+  
+  .mentor-badge {
+    background-color: #3f51b5;
+  }
+  
+  .mentee-badge {
+    background-color: #4caf50;
+  }
+  
+  /* Button Styles */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    gap: 0.5rem;
+  }
+  
+  .btn-block {
+    background-color: transparent;
+    border: 1px solid #f44336;
+    color: #f44336;
+  }
+  
+  .btn-block:hover {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .btn-unblock {
+    background-color: transparent;
+    border: 1px solid #4caf50;
+    color: #4caf50;
+  }
+  
+  .btn-unblock:hover {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  /* Interactions Section */
+  .interaction-card {
+    margin-bottom: 1.5rem;
+    animation: fadeIn 0.4s ease forwards;
+  }
+  
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    font-weight: 600;
+  }
+  
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  
+  /* Meeting & Post Cards */
+  .meeting-card, .post-card {
+    border: 1px solid #eaeef3;
+    border-radius: 8px;
+  }
+  
+  .meeting-url {
+    word-break: break-all;
+    color: #3f51b5;
+    text-decoration: none;
+  }
+  
+  .meeting-url:hover {
+    text-decoration: underline;
+  }
+  
+  .meeting-date {
+    color: #666;
+    font-size: 0.875rem;
+  }
+  
+  .participants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .participant-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: #f1f5f9;
+    border-radius: 8px;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+  
+  .participant-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+  
+  .meeting-minutes {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #f8faff;
+    border-radius: 4px;
+  }
+  
+  .comments-count {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    color: #666;
+    font-size: 0.875rem;
+  }
+  
+  /* Loading Spinner */
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+  }
+  
+  .spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border-left-color: #3f51b5;
+    animation: spin 1s linear infinite;
+  }
+  
+  /* Content Transition Animations */
+  .tab-content {
+    animation: fadeIn 0.3s ease forwards;
+    overflow-y: auto;
+    max-height: calc(100vh - 100px);
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .users-grid, .items-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .tab {
+      padding: 0.75rem;
+      font-size: 0.9rem;
+    }
+  }

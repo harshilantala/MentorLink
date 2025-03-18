@@ -29,6 +29,10 @@ const Profile = ({ profileData }) => {
     const dispatch = useDispatch();
     const history = useHistory();
 
+    // States for animation effects
+    const [cardLoaded, setCardLoaded] = useState(false);
+    const [contentLoaded, setContentLoaded] = useState(false);
+
     // function to fetch profile data for the mentor
     useEffect(() => {
         if (role === Roles.MENTOR) {
@@ -36,6 +40,10 @@ const Profile = ({ profileData }) => {
         } else if (role === Roles.STUDENT) {
             dispatch(studentGetProfileDetails(history));
         }
+        
+        // Animation sequence
+        setTimeout(() => setCardLoaded(true), 100);
+        setTimeout(() => setContentLoaded(true), 500);
     }, []);
 
     // accessing the global state for the mentor profile data
@@ -43,9 +51,9 @@ const Profile = ({ profileData }) => {
 
     // state for the modal field values
     const [mentorProfileData, setMentorProfileData] = useState({
-        firstname: "",
-        middlename: "",
-        lastname: "",
+        firstName: "",
+        middleName: "",
+        lastName: "",
         email: "",
         phone: "",
         address: "",
@@ -104,9 +112,9 @@ const Profile = ({ profileData }) => {
         if (role === Roles.MENTOR) {
             setShowEditModal(true);
             setMentorProfileData({
-                firstname: profileData.firstname ? profileData.firstname : "",
-                middlename: profileData.middlename ? profileData.middlename : "",
-                lastname: profileData.lastname ? profileData.lastname : "",
+                firstName: profileData.firstName ? profileData.firstName : "",
+                middleName: profileData.middleName ? profileData.middleName : "",
+                lastName: profileData.lastName ? profileData.lastName : "",
                 email: profileData.email ? profileData.email : "",
                 phone: profileData.phone ? profileData.phone : "",
                 address: profileData.address ? profileData.address : "",
@@ -124,9 +132,9 @@ const Profile = ({ profileData }) => {
                 enrollment_year: profileData.enrollment_year ? profileData.enrollment_year : "",
                 phone_no: profileData.phone_no ? profileData.phone_no : "",
                 address: profileData.address ? profileData.address : "",
-                firstname: profileData.firstname ? profileData.firstname : "",
-                middlename: profileData.middlename ? profileData.middlename : "",
-                lastname: profileData.lastname ? profileData.lastname : "",
+                firstName: profileData.firstName ? profileData.firstName : "",
+                middleName: profileData.middleName ? profileData.middleName : "",
+                lastName: profileData.lastName ? profileData.lastName : "",
                 gender: profileData.gender ? profileData.gender : "",
                 blood_group: profileData.blood_group ? profileData.blood_group : "",
                 home_place: profileData.home_place ? profileData.home_place : "",
@@ -156,13 +164,24 @@ const Profile = ({ profileData }) => {
         }
     };
 
-    // console.log("profile data", profileData);
-    // console.log(mentorProfileData);
+    // Helper function for card transition styles
+    const getCardTransitionClass = (index) => {
+        return cardLoaded 
+            ? `opacity-100 translate-y-0 transition-all duration-500 ease-out delay-${index * 100}`
+            : "opacity-0 translate-y-8 transition-all duration-500 ease-out";
+    };
+
+    // Helper function for content transition styles
+    const getContentTransitionClass = (index) => {
+        return contentLoaded 
+            ? `opacity-100 translate-x-0 transition-all duration-300 ease-out delay-${index * 75}`
+            : "opacity-0 -translate-x-4 transition-all duration-300 ease-out";
+    };
 
     return (
         <div
-            className={`w-full h-full ${role === Roles.MENTOR && "flex items-center justify-center"
-                } ${role === Roles.STUDENT && "p2"} relative`}
+            className={`w-full h-full ${role === Roles.MENTOR ? "flex items-center justify-center" : "p-4"} 
+                        relative bg-gradient-to-br from-blue-50 to-indigo-50`}
         >
             <CSSTransition
                 nodeRef={overlayRef}
@@ -218,32 +237,38 @@ const Profile = ({ profileData }) => {
                 </CSSTransition>
             )}
             {role === Roles.MENTOR && (
-                <div className="w-3/5 rounded-md p-4">
-                    <div className="flex gap-x-2 mb-3">
-                        <div className="bg-white px-5 py-10 shadow-md rounded-md">
-                            <h3 className="mb-5 flex items-center">
+                <div className="w-3/5 max-w-5xl">
+                    <div className={`text-3xl font-bold text-gray-800 mb-8 ${getContentTransitionClass(0)}`}>
+                        Profile Dashboard
+                    </div>
+                    <div className="flex gap-x-6 mb-6">
+                        <div className={`bg-white px-6 py-8 shadow-lg rounded-xl flex-shrink-0 border border-gray-100 ${getCardTransitionClass(1)}`}>
+                            <h3 className="mb-6 text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
                                 Profile Photo
-                                <UserCircleIcon alt={false} myStyle={"h-5 w-5 ml-2"} />
+                                <UserCircleIcon alt={false} myStyle={"h-5 w-5 ml-2 text-blue-500"} />
                             </h3>
-                            <div className="flex items-center gap-x-3">
-                                <img
-                                    className="w-32 h-32 rounded-md"
-                                    src={
-                                        profileData?.avatar?.url === ""
-                                            ? `https://api.dicebear.com/9.x/personas/svg`
-                                            : profileData?.avatar?.url
-                                    }
-                                    alt="menteeName"
-                                />
-                                <div className="flex flex-col items-center justify-between w-full">
+                            <div className="flex flex-col items-center gap-y-4">
+                                <div className="relative group">
+                                    <div className="absolute inset-0 bg-blue-600 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                                    <img
+                                        className="w-40 h-40 rounded-full object-cover border-4 border-blue-100 shadow-md hover:shadow-xl transition-shadow duration-300"
+                                        src={
+                                            profileData?.avatar?.url === ""
+                                                ? `https://api.dicebear.com/9.x/personas/svg`
+                                                : profileData?.avatar?.url
+                                        }
+                                        alt="Profile"
+                                    />
+                                </div>
+                                <div className="flex gap-x-3 mt-2">
                                     <button
                                         onClick={() => {
                                             setHiddenProfilePicModal(true);
                                             setShowOverlay(true);
                                         }}
-                                        className="p-2 bg-blue-600 border border-blue-600 hover:bg-blue-800 hover:border-blue-800 transition-all rounded-md text-white flex items-center justify-between mb-5"
+                                        className="p-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 rounded-lg text-white flex items-center text-sm shadow-md hover:shadow-lg transform hover:-translate-y-1"
                                     >
-                                        <UploadIcon alt={false} myStyle={"h-5 w-5 mr-2"} />
+                                        <UploadIcon alt={false} myStyle={"h-4 w-4 mr-2"} />
                                         Change
                                     </button>
                                     <button
@@ -251,77 +276,75 @@ const Profile = ({ profileData }) => {
                                             setHiddenProfilePicDelModal(true);
                                             setShowOverlay(true);
                                         }}
-                                        className="p-2 border border-red-600 text-red-600 rounded-md flex items-center justify-between hover:bg-red-600 hover:text-white transition-all"
+                                        className="p-2 bg-white border border-red-500 text-red-500 rounded-lg flex items-center text-sm hover:bg-red-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1"
                                     >
-                                        <TrashIcon alt={false} myStyle={"h-5 w-5 mr-2"} />
+                                        <TrashIcon alt={false} myStyle={"h-4 w-4 mr-2"} />
                                         Remove
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div className="bg-white px-5 py-10 rounded-md shadow-md flex-grow">
-                            <h3 className="mb-5 flex items-center">
+                        <div className={`bg-white p-6 rounded-xl shadow-lg flex-grow border border-gray-100 ${getCardTransitionClass(2)}`}>
+                            <h3 className="mb-6 text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
                                 Personal Information
-                                <UserGroupIcon alt={false} myStyle={"h-5 w-5 ml-2"} />
+                                <UserGroupIcon alt={false} myStyle={"h-5 w-5 ml-2 text-blue-500"} />
                             </h3>
-                            <div className="grid grid-cols-3 w-full">
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">First Name</h4>
-                                    <h4>{profileData?.firstname}</h4>
+                            <div className="grid grid-cols-3 gap-6">
+                                <div className={`flex flex-col ${getContentTransitionClass(1)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">First Name</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.firstName || "—"}</span>
                                 </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Middle Name</h4>
-                                    <h4>{profileData?.middlename}</h4>
+                                <div className={`flex flex-col ${getContentTransitionClass(2)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">Middle Name</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.middleName || "—"}</span>
                                 </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Last Name</h4>
-                                    <h4>{profileData?.lastname}</h4>
+                                <div className={`flex flex-col ${getContentTransitionClass(3)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">Last Name</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.lastName || "—"}</span>
                                 </div>
-                                <div className="flex items-start justify-center flex-col">
-                                    <h4 className="text-gray-400">Phone No.</h4>
-                                    <h4>{profileData?.phone}</h4>
+                                <div className={`flex flex-col ${getContentTransitionClass(4)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">Phone No.</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.phone || "—"}</span>
                                 </div>
-                                <div className="flex items-start justify-center flex-col">
-                                    <h4 className="text-gray-400">Address</h4>
-                                    <h4>{profileData?.address}</h4>
+                                <div className={`flex flex-col ${getContentTransitionClass(5)}`}>
+                                <span className="text-sm text-gray-500 font-medium">Address</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.address || "—"}</span>
                                 </div>
                             </div>
-                            <div className="flex items-start justify-center flex-col break-words break-all mt-5">
-                                <h4 className="text-gray-400">Email</h4>
-                                <h4>{profileData?.email}</h4>
+                            <div className={`flex flex-col mt-6 ${getContentTransitionClass(6)}`}>
+                                <span className="text-sm text-gray-500 font-medium">Email</span>
+                                <span className="text-gray-800 font-medium mt-1 break-words">{profileData?.email || "—"}</span>
                             </div>
                         </div>
                     </div>
-                    <div className="bg-white px-5 py-10 shadow-md rounded-md">
-                        <h3 className="mb-5 flex items-center">
+                    <div className={`bg-white p-6 rounded-xl shadow-lg border border-gray-100 ${getCardTransitionClass(3)}`}>
+                        <h3 className="mb-6 text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
                             Professional Details
-                            <AcademicCapIcon alt={false} myStyle={"h-5 w-5 ml-2"} />
+                            <AcademicCapIcon alt={false} myStyle={"h-5 w-5 ml-2 text-blue-500"} />
                         </h3>
                         <div className="flex items-end justify-between">
-                            <div className="grid grid-cols-2 w-full">
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Department</h4>
-                                    <h4 className="break-normal w-9/10">
-                                        {profileData?.department}
-                                    </h4>
+                            <div className="grid grid-cols-2 gap-6 w-full">
+                                <div className={`flex flex-col ${getContentTransitionClass(7)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">Department</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.department || "—"}</span>
                                 </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Designation</h4>
-                                    <h4>{profileData?.designation}</h4>
+                                <div className={`flex flex-col ${getContentTransitionClass(8)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">Designation</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.designation || "—"}</span>
                                 </div>
-                                <div className="flex items-start justify-center flex-col">
-                                    <h4 className="text-gray-400">Assigned</h4>
-                                    <h4>{profileData?.assigned}</h4>
+                                <div className={`flex flex-col ${getContentTransitionClass(9)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">Assigned</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.assigned || "—"}</span>
                                 </div>
-                                <div className="flex items-start justify-center flex-col">
-                                    <h4 className="text-gray-400">Students under you</h4>
-                                    <h4>{profileData?.studentCount}</h4>
+                                <div className={`flex flex-col ${getContentTransitionClass(10)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">Students under you</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.studentCount || "0"}</span>
                                 </div>
                             </div>
                             <button
                                 onClick={handleShowModal}
                                 title="edit"
-                                className="flex items-center justify-between py-3 px-4 rounded-md bg-blue-600 hover:bg-blue-800 transition-colors text-white flex-shrink-0"
+                                className="flex items-center justify-between py-3 px-5 rounded-lg bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white flex-shrink-0 shadow-md hover:shadow-lg transform hover:-translate-y-1"
                             >
                                 <PencilIcon alt={true} myStyle={"h-5 w-5 mr-2"} />
                                 Update Information
@@ -349,232 +372,244 @@ const Profile = ({ profileData }) => {
                 </CSSTransition>
             )}
             {role === Roles.STUDENT && (
-                <div className="grid grid-cols-12 gap-x-1">
-                    <div className="col-span-4 p-2">
-                        <div className="w-full shadow-m32 py-6 px-3 rounded-md mb-6 bg-white">
-                            <h2 className="mb-5 text-gray-700 flex items-center justify-start">
-                                Profile Photo
-                                <UserCircleIcon alt={false} myStyle={"h-5 w-5 ml-2"} />
-                            </h2>
-                            <div className="flex items-center justify-start">
-                                <img
-                                    className="w-32 h-32 rounded-md mr-5"
-                                    src={
-                                        profileData?.avatar?.url === ""
-                                            ? `https://api.dicebear.com/9.x/personas/svg`
-                                            : profileData?.avatar?.url
-                                    }
-                                    alt="menteeName"
-                                />
-                                <div className="flex flex-col items-center justify-between">
-                                    <button
-                                        onClick={() => {
-                                            setHiddenProfilePicModal(true);
-                                            setShowOverlay(true);
-                                        }}
-                                        className="p-2 bg-blue-600 border border-blue-600 hover:bg-blue-800 hover:border-blue-800 transition-all rounded-md text-white flex items-center justify-between mb-5"
-                                    >
-                                        <UploadIcon alt={false} myStyle={"h-5 w-5 mr-2"} />
-                                        Change
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setShowOverlay(true);
-                                            setHiddenProfilePicDelModal(true);
-                                        }}
-                                        className="p-2 border border-red-600 text-red-600 rounded-md flex items-center justify-between hover:bg-red-600 hover:text-white transition-all"
-                                    >
-                                        <TrashIcon alt={false} myStyle={"h-5 w-5 mr-2"} />
-                                        Remove
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="w-full bg-white shadow-m32 py-5 px-3 rounded-md mb-6">
-                            <div className="flex items-center justify-between mb-5">
-                                <h2 className="text-gray-700 flex items-center justify-start">
-                                    Academic Information
-                                    <AcademicCapIcon alt={false} myStyle={"h-5 w-5 ml-2"} />
-                                </h2>
-                            </div>
-                            <div className="grid grid-cols-6">
-                                <div className="col-span-3">
-                                    <div className="flex items-start justify-center flex-col mb-4">
-                                        <h4 className="text-gray-400">Department</h4>
-                                        <h4 className="pr-4">{profileData?.department}</h4>
-                                    </div>
-                                    <div className="flex items-start justify-center flex-col mb-4">
-                                        <h4 className="text-gray-400">Semester</h4>
-                                        <h4>{profileData?.semester}</h4>
-                                    </div>
-                                    <div className="flex items-start justify-center flex-col">
-                                        <h4 className="text-gray-400">Enrollment Number</h4>
-                                        <h4>{profileData?.enrollment_no}</h4>
-                                    </div>
-                                </div>
-                                <div className="col-start-4 col-span-3">
-                                    <div className="flex items-start justify-center flex-col mb-4">
-                                        <h4 className="text-gray-400">Programme</h4>
-                                        <h4>{profileData?.programme}</h4>
-                                    </div>
-                                    <div className="flex items-start justify-center flex-col mb-4">
-                                        <h4 className="text-gray-400">Mentored By</h4>
-                                        <h4>{profileData?.mentoredBy?.name}</h4>
-                                    </div>
-                                    <div className="flex items-start justify-center flex-col">
-                                        <h4 className="text-gray-400">Enrollment Year</h4>
-                                        <h4>{profileData?.enrollment_year}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="w-full bg-white shadow-m32 py-5 px-3 rounded-md">
-                            <div className="flex items-center justify-between mb-5">
-                                <h2 className="text-gray-700 flex items-center justify-start">
-                                    Contact Details
-                                    <PhoneIcon alt={false} myStyle={"h-5 w-5 ml-2"} />
-                                </h2>
-                            </div>
-                            <div className="">
-                                <div className="flex flex-col items-start mb-4">
-                                    <h4 className="text-gray-400">Email ID</h4>
-                                    <h4>{profileData?.email}</h4>
-                                </div>
-                                <div className="flex flex-col items-start mb-4">
-                                    <h4 className="text-gray-400">Phone Number</h4>
-                                    <h4>{profileData?.phone_no}</h4>
-                                </div>
-                                <div className="flex flex-col items-start">
-                                    <h4 className="text-gray-400">Address</h4>
-                                    <h4>{profileData?.address}</h4>
-                                </div>
-                            </div>
-                        </div>
+                <div className="w-full max-w-7xl mx-auto">
+                    <div className={`text-3xl font-bold text-gray-800 mb-8 ${getContentTransitionClass(0)}`}>
+                        Student Profile
                     </div>
-                    <div className="col-span-8 p-2">
-                        <div className="w-full bg-white shadow-m32 py-5 px-3 rounded-md mb-6">
-                            <div className="flex items-center justify-between mb-5">
-                                <h2 className="text-gray-700 flex items-center justify-start">
+                    <div className="grid grid-cols-12 gap-6">
+                        {/* Left Column */}
+                        <div className="col-span-12 md:col-span-4 space-y-6">
+                            {/* Profile Photo Card */}
+                            <div className={`bg-white p-6 rounded-xl shadow-lg border border-gray-100 ${getCardTransitionClass(1)}`}>
+                                <h3 className="mb-6 text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
+                                    Profile Photo
+                                    <UserCircleIcon alt={false} myStyle={"h-5 w-5 ml-2 text-blue-500"} />
+                                </h3>
+                                <div className="flex flex-col items-center">
+                                    <div className="relative group mb-4">
+                                        <div className="absolute inset-0 bg-blue-600 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                                        <img
+                                            className="w-40 h-40 rounded-full object-cover border-4 border-blue-100 shadow-md hover:shadow-xl transition-shadow duration-300"
+                                            src={
+                                                profileData?.avatar?.url === ""
+                                                    ? `https://api.dicebear.com/9.x/personas/svg`
+                                                    : profileData?.avatar?.url
+                                            }
+                                            alt="Profile"
+                                        />
+                                    </div>
+                                    <div className="flex gap-x-3">
+                                        <button
+                                            onClick={() => {
+                                                setHiddenProfilePicModal(true);
+                                                setShowOverlay(true);
+                                            }}
+                                            className="p-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 rounded-lg text-white flex items-center text-sm shadow-md hover:shadow-lg transform hover:-translate-y-1"
+                                        >
+                                            <UploadIcon alt={false} myStyle={"h-4 w-4 mr-2"} />
+                                            Change
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowOverlay(true);
+                                                setHiddenProfilePicDelModal(true);
+                                            }}
+                                            className="p-2 bg-white border border-red-500 text-red-500 rounded-lg flex items-center text-sm hover:bg-red-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1"
+                                        >
+                                            <TrashIcon alt={false} myStyle={"h-4 w-4 mr-2"} />
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Academic Information Card */}
+                            <div className={`bg-white p-6 rounded-xl shadow-lg border border-gray-100 ${getCardTransitionClass(2)}`}>
+                                <h3 className="mb-6 text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
+                                    Academic Information
+                                    <AcademicCapIcon alt={false} myStyle={"h-5 w-5 ml-2 text-blue-500"} />
+                                </h3>
+                                <div className="grid grid-cols-1 gap-y-4">
+                                    <div className={`flex flex-col ${getContentTransitionClass(1)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Department</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.department || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(2)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Programme</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.programme || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(3)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Semester</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.semester || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(4)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Mentored By</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.mentoredBy?.name || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(5)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Enrollment Number</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.enrollment_no || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(6)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Enrollment Year</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.enrollment_year || "—"}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Contact Details Card */}
+                            <div className={`bg-white p-6 rounded-xl shadow-lg border border-gray-100 ${getCardTransitionClass(3)}`}>
+                                <h3 className="mb-6 text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
+                                    Contact Details
+                                    <PhoneIcon alt={false} myStyle={"h-5 w-5 ml-2 text-blue-500"} />
+                                </h3>
+                                <div className="grid grid-cols-1 gap-y-4">
+                                    <div className={`flex flex-col ${getContentTransitionClass(7)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Email ID</span>
+                                        <span className="text-gray-800 font-medium mt-1 break-words">{profileData?.email || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(8)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Phone Number</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.phone_no || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(9)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Address</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.address || "—"}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Right Column */}
+                        <div className="col-span-12 md:col-span-8 space-y-6">
+                            {/* Personal Information Card */}
+                            <div className={`bg-white p-6 rounded-xl shadow-lg border border-gray-100 ${getCardTransitionClass(4)}`}>
+                                <h3 className="mb-6 text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
                                     Personal Information
-                                    <UserGroupIcon alt={false} myStyle={"h-5 w-5 ml-2"} />
-                                </h2>
-                            </div>
-
-                            <div className="grid grid-cols-3">
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">First Name</h4>
-                                    <h4>{profileData?.firstname}</h4>
+                                    <UserGroupIcon alt={false} myStyle={"h-5 w-5 ml-2 text-blue-500"} />
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                    <div className={`flex flex-col ${getContentTransitionClass(10)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">First Name</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.firstname || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(11)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Middle Name</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.middlename || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(12)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Last Name</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.lastname || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(13)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Gender</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.gender || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(14)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Blood Group</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.blood_group || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(15)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Home Place</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.home_place || "—"}</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Middle Name</h4>
-                                    <h4>{profileData?.middlename}</h4>
+                                <div className={`flex flex-col mt-4 ${getContentTransitionClass(16)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">Hobbies</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.hobbies || "—"}</span>
                                 </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Last Name</h4>
-                                    <h4>{profileData?.lastname}</h4>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                                    <div className={`flex flex-col ${getContentTransitionClass(17)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Guardian Name</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.guardian_name || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(18)}`}>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.guardian_ph_no || "—"}</span>
+                                    </div>
+                                    <div className={`flex flex-col ${getContentTransitionClass(19)}`}>
+                                        <span className="text-sm text-gray-500 font-medium">Guardian Address</span>
+                                        <span className="text-gray-800 font-medium mt-1">{profileData?.guardian_address || "—"}</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Gender</h4>
-                                    <h4>{profileData?.gender}</h4>
-                                </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Blood Group</h4>
-                                    <h4>{profileData?.blood_group}</h4>
-                                </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Home Place</h4>
-                                    <h4>{profileData?.home_place}</h4>
-                                </div>
-                                <div className="flex col-span-3 items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Hobbies</h4>
-                                    <h4>{profileData?.hobbies}</h4>
-                                </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Guardian Name</h4>
-                                    <h4>{profileData?.guardian_name}</h4>
-                                </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Guardian Ph No.</h4>
-                                    <h4>{profileData?.guardian_ph_no}</h4>
-                                </div>
-                                <div className="flex items-start justify-center flex-col mb-4">
-                                    <h4 className="text-gray-400">Guardian Address</h4>
-                                    <h4>{profileData?.guardian_address}</h4>
-                                </div>
-                                <div className="flex col-span-3 items-start justify-center flex-col">
-                                    <h4 className="text-gray-400">
-                                        Family Details (occupation, members, etc)
-                                    </h4>
-                                    <h4>{profileData?.family_details}</h4>
+                                <div className={`flex flex-col mt-4 ${getContentTransitionClass(20)}`}>
+                                    <span className="text-sm text-gray-500 font-medium">Family Details</span>
+                                    <span className="text-gray-800 font-medium mt-1">{profileData?.family_details || "—"}</span>
                                 </div>
                             </div>
-                        </div>
-                        <div className="w-full bg-white shadow-m32 py-5 px-3 rounded-md mb-3">
-                            <h2 className="mb-5 text-gray-700 flex items-center justify-start">
-                                Hostel Details
-                                <OfficeBuildingIcon alt={false} myStyle={"h-5 w-5 ml-2"} />
-                            </h2>
-                            <div className="grid grid-cols-2 gap-x-2">
-                                <div className="col-span-1 grid grid-cols-2 border-r border-gray-300">
-                                    <div className="flex items-center justify-between mb-4 col-span-2 mr-3">
-                                        <h4 className="font-bold">If hostel boarder</h4>
-                                    </div>
-
-                                    <div className="flex col-span-2 mb-4 items-start justify-center flex-col">
-                                        <h4 className="text-gray-400">Hostel Name</h4>
-                                        <h4>{profileData?.hostel_name}</h4>
-                                    </div>
-                                    <div className="flex  items-start justify-center mb-2 flex-col">
-                                        <h4 className="text-gray-400">Warden's Name</h4>
-                                        <h4>{profileData?.warden_name}</h4>
-                                    </div>
-                                    <div className="flex items-start justify-center mb-2 flex-col">
-                                        <h4 className="text-gray-400">Asst Warden's Name</h4>
-                                        <h4>{profileData?.asst_warden_name}</h4>
-                                    </div>
-                                    <div className="flex items-start justify-center flex-col">
-                                        <h4 className="text-gray-400">Ph No.</h4>
-                                        <h4>{profileData?.warden_ph_no}</h4>
-                                    </div>
-                                    <div className="flex items-start justify-center flex-col">
-                                        <h4 className="text-gray-400">Ph No.</h4>
-                                        <h4>{profileData?.asst_warden_ph_no}</h4>
-                                    </div>
-                                </div>
-                                <div className="col-span-1 grid grid-cols-1">
-                                    <div className="flex items-center justify-between mb-4 col-span-1">
-                                        <h4 className="font-bold">If not hostel boarder</h4>
-                                    </div>
-                                    <div className="flex col-span-1 mb-4 items-start justify-center flex-col">
-                                        <h4 className="text-gray-400">
-                                            Responsible contact person at residence
+                            
+                            {/* Hostel Details Card */}
+                            <div className={`bg-white p-6 rounded-xl shadow-lg border border-gray-100 ${getCardTransitionClass(5)}`}>
+                                <h3 className="mb-6 text-lg font-semibold text-gray-700 border-b pb-2 flex items-center">
+                                    Hostel Details
+                                    <OfficeBuildingIcon alt={false} myStyle={"h-5 w-5 ml-2 text-blue-500"} />
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    {/* Hostel Boarder */}
+                                    <div className="space-y-4">
+                                        <h4 className={`font-semibold text-gray-700 ${getContentTransitionClass(21)}`}>
+                                            <span className="inline-block bg-blue-100 text-blue-800 text-xs rounded-full px-3 py-1">
+                                                Hostel Boarder
+                                            </span>
                                         </h4>
-                                        <h4>
-                                            {profileData?.responsible_contact_person_at_residence}
-                                        </h4>
+                                        <div className={`flex flex-col ${getContentTransitionClass(22)}`}>
+                                            <span className="text-sm text-gray-500 font-medium">Hostel Name</span>
+                                            <span className="text-gray-800 font-medium mt-1">{profileData?.hostel_name || "—"}</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className={`flex flex-col ${getContentTransitionClass(23)}`}>
+                                                <span className="text-sm text-gray-500 font-medium">Warden's Name</span>
+                                                <span className="text-gray-800 font-medium mt-1">{profileData?.warden_name || "—"}</span>
+                                            </div>
+                                            <div className={`flex flex-col ${getContentTransitionClass(24)}`}>
+                                                <span className="text-sm text-gray-500 font-medium">Ph No.</span>
+                                                <span className="text-gray-800 font-medium mt-1">{profileData?.warden_ph_no || "—"}</span>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className={`flex flex-col ${getContentTransitionClass(25)}`}>
+                                                <span className="text-sm text-gray-500 font-medium">Asst Warden's Name</span>
+                                                <span className="text-gray-800 font-medium mt-1">{profileData?.asst_warden_name || "—"}</span>
+                                            </div>
+                                            <div className={`flex flex-col ${getContentTransitionClass(26)}`}>
+                                                <span className="text-sm text-gray-500 font-medium">Ph No.</span>
+                                                <span className="text-gray-800 font-medium mt-1">{profileData?.asst_warden_ph_no || "—"}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex col-span-1 mb-4 items-start justify-center flex-col">
-                                        <h4 className="text-gray-400">
-                                            Contact no. of contact person
+                                    
+                                    {/* Not Hostel Boarder */}
+                                    <div className="space-y-4">
+                                        <h4 className={`font-semibold text-gray-700 ${getContentTransitionClass(27)}`}>
+                                            <span className="inline-block bg-indigo-100 text-indigo-800 text-xs rounded-full px-3 py-1">
+                                                Day Scholar
+                                            </span>
                                         </h4>
-                                        <h4>{profileData?.contact_no_of_contact_person}</h4>
-                                    </div>
-                                    <div className="flex col-span-1 items-start justify-center flex-col">
-                                        <h4 className="text-gray-400">Reidence Address</h4>
-                                        <h4>{profileData?.residence_address}</h4>
+                                        <div className={`flex flex-col ${getContentTransitionClass(28)}`}>
+                                            <span className="text-sm text-gray-500 font-medium">Responsible Contact Person</span>
+                                            <span className="text-gray-800 font-medium mt-1">{profileData?.responsible_contact_person_at_residence || "—"}</span>
+                                        </div>
+                                        <div className={`flex flex-col ${getContentTransitionClass(29)}`}>
+                                            <span className="text-sm text-gray-500 font-medium">Contact Number</span>
+                                            <span className="text-gray-800 font-medium mt-1">{profileData?.contact_no_of_contact_person || "—"}</span>
+                                        </div>
+                                        <div className={`flex flex-col ${getContentTransitionClass(30)}`}>
+                                            <span className="text-sm text-gray-500 font-medium">Residence Address</span>
+                                            <span className="text-gray-800 font-medium mt-1">{profileData?.residence_address || "—"}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div className="w-full flex items-center justify-end mt-5">
-                            <button
-                                onClick={handleShowModal}
-                                title="edit"
-                                className="flex items-center justify-between py-3 px-4 rounded-md bg-blue-600 hover:bg-blue-800 transition-colors text-white"
-                            >
-                                <PencilIcon alt={true} myStyle={"h-5 w-5 mr-2"} />
-                                Update Information
-                            </button>
+                            
+                            {/* Update Information Button */}
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={handleShowModal}
+                                    className={`flex items-center py-3 px-6 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 ${getCardTransitionClass(6)}`}
+                                >
+                                    <PencilIcon alt={true} myStyle={"h-5 w-5 mr-2"} />
+                                    Update Information
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,91 @@
+/* Add this to your CSS file */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateY(-10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .logs-table tbody tr {
+    opacity: 0;
+  }
+  
+  .logs-table tbody tr.visible {
+    animation: fadeIn 0.3s ease-in-out forwards;
+  }
+  
+  .refresh-rotate {
+    transition: transform 0.5s ease-in-out;
+  }
+  
+  .refresh-rotate.spinning {
+    transform: rotate(360deg);
+  }
+  
+  /* Additional hover effects */
+  .log-row:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .logs-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .search-bar {
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    .action-buttons {
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+  
+  /* Improved scrollbar styles */
+  .table-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  
+  .table-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+  }
+  
+  .table-container::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+  }
+  
+  /* Skeleton loading animation */
+  @keyframes pulse {
+    0% {
+      background-color: rgba(226, 232, 240, 0.6);
+    }
+    50% {
+      background-color: rgba(226, 232, 240, 0.8);
+    }
+    100% {
+      background-color: rgba(226, 232, 240, 0.6);
+    }
+  }
+  
+  .skeleton {
+    animation: pulse 1.5s infinite;
+    border-radius: 0.25rem;
+  }

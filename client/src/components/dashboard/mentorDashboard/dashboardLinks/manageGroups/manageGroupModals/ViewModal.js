@@ -34,7 +34,7 @@ const ViewModal = ({
                 <div className="flex items-center justify-between mb-3">
                     <h4 className="mr-5">
                         Assigned mentees to
-                        {` ${selectedMentor.firstname} ${selectedMentor.middlename} ${selectedMentor.lastname}`}
+                        {` ${selectedMentor.firstName} ${selectedMentor.middleName} ${selectedMentor.lastName}`}
                     </h4>
                     <button onClick={handleActions} className="text-2xl">
                         &times;

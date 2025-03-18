@@ -1,11 +1,11 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { mentorGetAllMentees, mentorGetAllMenteeSemesters } from "../../../../../../actions/mentor";
 import MenteeDetailsTile from "./menteeDetailsTile/MenteeDetailsTile";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import AnnotationIcon from "../../../../../../assets/icons/AnnotationIcon";
+import "./MenteeTile.css"; // We'll create this CSS file for the styled component
 
 const MenteeTile = ({ slno, mentee, history }) => {
     const dispatch = useDispatch();
@@ -15,75 +15,71 @@ const MenteeTile = ({ slno, mentee, history }) => {
     // state variable to store the fetched semesters for the mentee
     const [semesters, setSemesters] = useState([]);
 
-    console.log("semesters", semesters);
+    const handleToggleDetails = () => {
+        if (!showDetails) {
+            setShowDetails(true);
+            dispatch(mentorGetAllMenteeSemesters(history, setSemesters, mentee._id));
+            dispatch(mentorGetAllMentees());
+        } else {
+            setShowDetails(false);
+        }
+    };
 
     return (
-        <>
-            <div className="hover:shadow-md transition-shadow duration-200 grid grid-cols-custom rounded-md py-2 px-2 mt-3 bg-white shadow-sm items-center">
-                <div>
-                    <h5>{slno}</h5>
-                </div>
-
-                <div className="flex justify-start items-center">
-                    <div className="mr-2">
+        <div className="mentee-tile-wrapper">
+            <div className="mentee-row">
+                <div className="mentee-cell sl-no">{slno}</div>
+                
+                <div className="mentee-cell name">
+                    <div className="mentee-avatar">
                         <img
-                            className="h-9 w-9 rounded-full"
                             src={
                                 mentee.avatar.url === ""
                                     ? `https://api.dicebear.com/9.x/personas/svg`
                                     : mentee.avatar.url
                             }
-                            alt="img"
+                            alt={`${mentee.firstName}'s avatar`}
                         />
                     </div>
-                    <div>
-                        <h5>{`${mentee.firstname} ${mentee.middlename} ${mentee.lastname}`}</h5>
+                    <div className="mentee-name">
+                        {`${mentee.firstName} ${mentee.middleName} ${mentee.lastName}`}
                     </div>
                 </div>
-                <div>
-                    <h5 className="">{mentee.enrollment_no}</h5>
-                </div>
-                <div className="col-span-2">
-                    <h5>{mentee.address}</h5>
-                </div>
-                <div>
-                    <h5>{mentee.department}</h5>
-                </div>
-                <div>
-                    <h5>{mentee.semester}</h5>
-                </div>
-                <div>
-                    <h5>{mentee.phone_no}</h5>
-                </div>
-                <div className="flex items-center gap-x-20">
-                    <button className="p-2 bg-gray-100 rounded-lg">
-                        <AnnotationIcon alt={true} myStyle={"h-4 w-4"} />
+                
+                <div className="mentee-cell roll">{mentee.enrollment_no}</div>
+                
+                <div className="mentee-cell address">{mentee.address}</div>
+                
+                <div className="mentee-cell department">{mentee.department}</div>
+                
+                <div className="mentee-cell semester">{mentee.semester}</div>
+                
+                <div className="mentee-cell phone">{mentee.phone_no}</div>
+                
+                <div className="mentee-cell actions">
+                    <button className="action-button annotation">
+                        <AnnotationIcon alt={true} myStyle={"action-icon"} />
                     </button>
-                    {showDetails === false ? (
-                        <button
-                            onClick={() => {
-                                setShowDetails(true);
-                                dispatch(
-                                    mentorGetAllMenteeSemesters(history, setSemesters, mentee._id)
-                                );
-                                dispatch(mentorGetAllMentees());
-                            }}
-                            className="p-1 bg-gray-100 rounded-lg"
-                        >
-                            <KeyboardArrowDownIcon fontSize="small" />
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => setShowDetails(false)}
-                            className="p-1 bg-gray-100 rounded-lg"
-                        >
+                    
+                    <button 
+                        className="action-button toggle"
+                        onClick={handleToggleDetails}
+                    >
+                        {showDetails ? (
                             <KeyboardArrowUpIcon fontSize="small" />
-                        </button>
-                    )}
+                        ) : (
+                            <KeyboardArrowDownIcon fontSize="small" />
+                        )}
+                    </button>
                 </div>
             </div>
-            {showDetails && <MenteeDetailsTile mentee={mentee} semesters={semesters} />}
-        </>
+            
+            {showDetails && (
+                <div className="mentee-details-container">
+                    <MenteeDetailsTile mentee={mentee} semesters={semesters} />
+                </div>
+            )}
+        </div>
     );
 };
 

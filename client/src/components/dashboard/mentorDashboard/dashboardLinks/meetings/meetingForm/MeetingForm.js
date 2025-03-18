@@ -2,16 +2,22 @@ import React, { useContext, useRef, useState } from "react";
 import DTP from "../dtp/DTP";
 import EventIcon from "@mui/icons-material/Event";
 import LinkIcon from "@mui/icons-material/Link";
+import InfoIcon from "@mui/icons-material/Info";
 import { CSSTransition } from "react-transition-group";
 import ModalOverlay from "../../../../../modal/ModalOverlay";
 import MeetingModal from "../meetingModal/MeetingModal";
 import { SocketContext } from "../../../../../../socket/socket";
+import "./MeetingForm.css"; // We'll create this CSS file
 
 const MeetingForm = ({ meeting, setMeeting }) => {
     const [isValidDateTime, setIsValidDateTime] = useState(true);
     const [dateProvided, setDateProvided] = useState(true);
+    const [focused, setFocused] = useState({
+        description: false,
+        url: false,
+    });
 
-    // function to handle the date change adn logic to prevent previous date selection
+    // function to handle the date change and logic to prevent previous date selection
     const handleDateChange = (newDate) => {
         if (newDate == null) {
             setMeeting({ ...meeting, date: newDate });
@@ -48,8 +54,6 @@ const MeetingForm = ({ meeting, setMeeting }) => {
         setShowOverlay(true);
     };
 
-    console.log("date", meeting.date);
-
     // state to control the modal show and dont show
     const [showOverlay, setShowOverlay] = useState(false);
     const [showMeetingModal, setShowMeetingModal] = useState(false);
@@ -61,7 +65,7 @@ const MeetingForm = ({ meeting, setMeeting }) => {
     const socket = useContext(SocketContext);
 
     return (
-        <>
+        <div className="meeting-form-container">
             <CSSTransition
                 nodeRef={overlayRef}
                 in={showOverlay}
@@ -87,59 +91,63 @@ const MeetingForm = ({ meeting, setMeeting }) => {
                     socket={socket}
                 />
             </CSSTransition>
-            <h3 className="px-4 py-3 mb-4 rounded-md bg-white shadow">Schedule a meeting</h3>
-            <form onSubmit={handleSubmit}>
-                <div className="flex flex-col mb-3">
-                    <textarea
-                        onChange={handleChange}
-                        value={meeting.description}
-                        required
-                        name="description"
-                        id="description"
-                        rows={4}
-                        placeholder="Meeting description"
-                        className="resize-y rounded-md border-gray-300 border focus:ring-0"
-                    ></textarea>
-                    {meeting.description ? (
-                        <h6 className="ml-2 text-gray-500">Meeting description</h6>
-                    ) : (
-                        ""
-                    )}
-                </div>
-
-                <div className="flex flex-col mb-3 relative">
-                    <input
-                        required
-                        onChange={handleChange}
-                        value={meeting.url}
-                        id="url"
-                        name="url"
-                        type="text"
-                        placeholder="Meeting link"
-                        className="rounded-lg border-blueGray-300 border focus:ring-0 pr-10"
-                    />
-                    <div className="absolute top-2.5 right-3">
-                        <LinkIcon className="text-gray-500" />
+            
+            <div className="form-card">
+                <h3 className="form-title">Schedule a meeting</h3>
+                <form onSubmit={handleSubmit}>
+                    <div className={`form-group ${meeting.description ? 'has-value' : ''} ${focused.description ? 'focused' : ''}`}>
+                        <div className="input-container">
+                            <textarea
+                                onChange={handleChange}
+                                value={meeting.description}
+                                required
+                                name="description"
+                                id="description"
+                                rows={4}
+                                placeholder="Meeting description"
+                                onFocus={() => setFocused({...focused, description: true})}
+                                onBlur={() => setFocused({...focused, description: false})}
+                            ></textarea>
+                            <label htmlFor="description">Meeting description</label>
+                        </div>
                     </div>
-                    {meeting.url ? <h6 className="ml-2 text-gray-500">Meeting url</h6> : ""}
-                </div>
 
-                <DTP date={meeting.date} handleDateChange={handleDateChange} />
-                {meeting.date ? <h6 className="ml-2 text-gray-500">Meeting date and time</h6> : ""}
-                {isValidDateTime ? "" : <h6 className="ml-2 text-red-600">Invalid time</h6>}
-                {dateProvided ? "" : <h6 className="ml-2 text-blue-600">Date required</h6>}
+                    <div className={`form-group ${meeting.url ? 'has-value' : ''} ${focused.url ? 'focused' : ''}`}>
+                        <div className="input-container">
+                            <input
+                                required
+                                onChange={handleChange}
+                                value={meeting.url}
+                                id="url"
+                                name="url"
+                                type="text"
+                                placeholder="Meeting link"
+                                onFocus={() => setFocused({...focused, url: true})}
+                                onBlur={() => setFocused({...focused, url: false})}
+                            />
+                            <label htmlFor="url">Meeting URL</label>
+                            <div className="input-icon">
+                                <LinkIcon />
+                            </div>
+                        </div>
+                    </div>
 
-                <div className="w-full flex items-center mt-3">
-                    <button
-                        type="submit"
-                        className="w-full flex items-center justify-center gap-x-2 py-1.5 px-2 hover:bg-blue-600 rounded-md text-white bg-blue-500 transition-all disabled:opacity-50"
-                    >
-                        <EventIcon fontSize="small" />
-                        Schedule
-                    </button>
-                </div>
-            </form>
-        </>
+                    <div className="form-group date-picker">
+                        <DTP date={meeting.date} handleDateChange={handleDateChange} />
+                        {meeting.date && <label className="date-label">Meeting date and time</label>}
+                        {!isValidDateTime && <p className="error-message">Invalid time - Please select a future date</p>}
+                        {!dateProvided && <p className="required-message">Please select a date and time</p>}
+                    </div>
+
+                    <div className="submit-container">
+                        <button type="submit" className="submit-button">
+                            <EventIcon fontSize="small" />
+                            <span>Schedule Meeting</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     );
 };
 

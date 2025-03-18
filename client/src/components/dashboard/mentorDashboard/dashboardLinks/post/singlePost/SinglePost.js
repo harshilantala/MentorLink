@@ -65,7 +65,7 @@ const SinglePost = ({
                         alt="authorImage"
                     />
                     <div>
-                        <h3>{`${author.firstname} ${author.middlename} ${author.lastname}`}</h3>
+                        <h3>{`${author.firstName} ${author.middleName} ${author.lastName}`}</h3>
                         <div className="flex items-center justify-center gap-x-2">
                             <h6>{moment(post.createdAt).format("LLL")}</h6>
                             <DotIcon alt={true} myStyle={"h-1 w-1"} />

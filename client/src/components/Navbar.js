@@ -7,7 +7,7 @@ function Navbar() {
 
   // Function to handle redirection
   const handleSignUpClick = () => {
-    history.push("/role"); // Use history.push to navigate to /main
+    history.push("/main"); // Use history.push to navigate to /main
   };
 
   return (

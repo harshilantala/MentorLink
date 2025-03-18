@@ -1,0 +1,176 @@
+/* MenteeTile.css */
+
+.mentee-tile-wrapper {
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+  }
+  
+  .mentee-row {
+    display: grid;
+    grid-template-columns: 0.5fr 1.5fr 1fr 2fr 1fr 1fr 1fr 1fr;
+    padding: 0.75rem 1rem;
+    background-color: white;
+    border-radius: 8px;
+    align-items: center;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+  
+  .mentee-row:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-color: #e5e7eb;
+    transform: translateY(-2px);
+  }
+  
+  .mentee-cell {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+  }
+  
+  .mentee-cell.sl-no {
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .mentee-cell.name {
+    display: flex;
+    align-items: center;
+  }
+  
+  .mentee-avatar {
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+  }
+  
+  .mentee-avatar img {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f3f4f6;
+    transition: all 0.3s ease;
+  }
+  
+  .mentee-row:hover .mentee-avatar img {
+    border-color: #4f46e5;
+  }
+  
+  .mentee-name {
+    font-weight: 500;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .mentee-cell.roll {
+    font-family: monospace;
+    font-weight: 500;
+  }
+  
+  .mentee-cell.address {
+    grid-column: span 2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .mentee-cell.semester {
+    text-align: center;
+  }
+  
+  .mentee-cell.actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  
+  .action-button {
+    background-color: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #6b7280;
+  }
+  
+  .action-button:hover {
+    background-color: #e5e7eb;
+    color: #4f46e5;
+  }
+  
+  .action-button.annotation:hover {
+    background-color: #ede9fe;
+    color: #6d28d9;
+  }
+  
+  .action-button.toggle:hover {
+    background-color: #e0f2fe;
+    color: #0284c7;
+  }
+  
+  .action-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+  
+  /* For the expanded details */
+  .mentee-details-container {
+    margin-top: 0.25rem;
+    margin-bottom: 1rem;
+    padding: 0 1rem;
+    overflow: hidden;
+    animation: expand 0.3s ease forwards;
+    transform-origin: top;
+    background-color: #f9fafb;
+    border-radius: 0 0 8px 8px;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+  }
+  
+  @keyframes expand {
+    from {
+      max-height: 0;
+      opacity: 0;
+      transform: scaleY(0);
+    }
+    to {
+      max-height: 1000px;
+      opacity: 1;
+      transform: scaleY(1);
+    }
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 1024px) {
+    .mentee-row {
+      grid-template-columns: 0.5fr 1.5fr 1fr 1.5fr 1fr 1fr 1fr 1fr;
+    }
+    
+    .mentee-name {
+      max-width: 150px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .mentee-row {
+      font-size: 0.75rem;
+      padding: 0.5rem;
+    }
+    
+    .mentee-avatar img {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+    
+    .action-button {
+      padding: 0.375rem;
+    }
+  }

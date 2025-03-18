@@ -1,16 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
+import { toast, ToastContainer } from "react-toastify";
+import { Checkbox, FormControlLabel } from "@mui/material";
+import { CSSTransition } from "react-transition-group";
 
 import { adminSignIn } from "../../actions/admin";
 import { mentorSignIn, mentorSignUp } from "../../actions/mentor";
 import { studentSignIn, studentSignUp } from "../../actions/student";
 import ArrowRight from "../../assets/icons/ArrowRight";
-import loginBg from "../../assets/images/login.png";
-import { toast, ToastContainer } from "react-toastify";
 import { showToast } from "../toast/toast";
-import { Checkbox, FormControlLabel } from "@mui/material";
-import { CSSTransition } from "react-transition-group";
 import ModalOverlay from "../modal/ModalOverlay";
 import ForgotPasswordModal from "./ForgotPasswordModal";
 import { verifyRecaptcha } from "../../actions";
@@ -27,9 +26,20 @@ const Auth = ({ location }) => {
     enrollmentNo: "",
     semester: "",
     department: "",
+    experience: "",
+    specialization: "",
+    qualificationProof: "",
   });
   const dispatch = useDispatch();
   const history = useHistory();
+  const [showPass, setShowPass] = useState("password");
+  const [FPEmail, setFPEmail] = useState({
+    role: location.state,
+    email: "",
+  });
+  const [showModal, setShowModal] = useState(false);
+  const modalRef = useRef(null);
+  const overlayRef = useRef(null);
 
   useEffect(() => {
     if (location.state === undefined) {
@@ -48,6 +58,9 @@ const Auth = ({ location }) => {
       enrollmentNo: "",
       semester: "",
       department: "",
+      experience: "",
+      specialization: "",
+      qualificationProof: null,
     });
   };
 
@@ -61,111 +74,228 @@ const Auth = ({ location }) => {
     setFields({ ...fields, [e.target.name]: e.target.value.trim() });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (location.state === "Admin") {
-      dispatch(adminSignIn(fields, history));
-    } else if (location.state === "Mentor") {
-      if (toggleLogin === true) {
-        if (fields.password !== fields.confirmPassword) {
-          showToast(
-            "error",
-            "passwords doesn't match",
-            5000,
-            toast.POSITION.TOP_RIGHT
-          );
-          return;
-        }
-        dispatch(mentorSignUp(fields, handleToggle));
-      } else {
-        dispatch(mentorSignIn(fields, history));
-      }
-    } else if (location.state === "Mentee") {
-      if (toggleLogin === true) {
-        if (fields.password !== fields.confirmPassword) {
-          showToast(
-            "error",
-            "passwords doesn't match",
-            5000,
-            toast.POSITION.TOP_RIGHT
-          );
-          return;
-        }
-        dispatch(studentSignUp(fields, handleToggle));
-      } else {
-        dispatch(studentSignIn(fields, history));
-      }
+  const handleFileChange = (e) => {
+    if (e.target.files.length > 0) {
+      setFields({ ...fields, [e.target.name]: e.target.files[0] });
     }
-    resetFields();
   };
-
-  const [showPass, setShowPass] = useState("password");
-  const [FPEmail, setFPEmail] = useState({
-    role: location.state,
-    email: "",
-  });
 
   const handlePasswordShowToggle = () => {
-    if (showPass === "password") setShowPass("text");
-    if (showPass === "text") setShowPass("password");
+    setShowPass(showPass === "password" ? "text" : "password");
   };
 
-  const [showModal, setShowModal] = useState(false);
-  const modalRef = useRef(null);
-  const overlayRef = useRef(null);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (!fields || Object.keys(fields).length === 0) {
+      showToast(
+        "error",
+        "All fields are required",
+        5000,
+        toast.POSITION.TOP_RIGHT
+      );
+      return;
+    }
+
+    const formData = new FormData();
+    Object.keys(fields).forEach((key) => {
+      formData.append(key, fields[key]);
+    });
+
+    try {
+      if (location.state === "Admin") {
+        dispatch(adminSignIn(fields, history));
+      } else if (location.state === "Mentor") {
+        if (toggleLogin) {
+          if (fields.password !== fields.confirmPassword) {
+            showToast(
+              "error",
+              "Passwords do not match",
+              5000,
+              toast.POSITION.TOP_RIGHT
+            );
+            return;
+          }
+          await dispatch(mentorSignUp(formData, handleToggle));
+        } else {
+          await dispatch(mentorSignIn(fields, history));
+        }
+      } else if (location.state === "Mentee") {
+        if (toggleLogin) {
+          if (fields.password !== fields.confirmPassword) {
+            showToast(
+              "error",
+              "Passwords do not match",
+              5000,
+              toast.POSITION.TOP_RIGHT
+            );
+            return;
+          }
+          await dispatch(studentSignUp(fields, handleToggle));
+        } else {
+          await dispatch(studentSignIn(fields, history));
+        }
+      }
+
+      resetFields();
+      showToast(
+        "success",
+        "Submitted successfully!",
+        3000,
+        toast.POSITION.TOP_RIGHT
+      );
+    } catch (error) {
+      console.error("Submission Error:", error);
+      showToast(
+        "error",
+        "Failed to submit. Try again.",
+        5000,
+        toast.POSITION.TOP_RIGHT
+      );
+    }
+  };
+
+  // Determine if we're showing the mentorSignUp form
+  const isMentorSignUp = toggleLogin && location.state === "Mentor";
 
   return (
-    <div className="w-full min-h-screen flex items-center bg-gradient-to-br from-blue-50 to-blue-100">
-      <CSSTransition
-        nodeRef={overlayRef}
-        in={showModal}
-        timeout={300}
-        classNames="overlay"
-        unmountOnExit
-      >
-        <ModalOverlay nodeRef={overlayRef} />
-      </CSSTransition>
-      <CSSTransition
-        nodeRef={modalRef}
-        in={showModal}
-        timeout={300}
-        classNames="modal"
-        unmountOnExit
-      >
-        <ForgotPasswordModal
-          nodeRef={modalRef}
-          setShowModal={setShowModal}
-          setFPEmail={setFPEmail}
-          FPEmail={FPEmail}
-        />
-      </CSSTransition>
-
-      <div className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
-        <div className="hidden md:flex flex-col items-center justify-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-8 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-            {location.state} {toggleLogin ? "Sign Up" : "Sign In"}
+    <div className="flex min-h-screen w-full bg-gray-50">
+      {/* Left side - illustration/branding area */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br flex-col justify-center items-center p-12"
+           style={{
+             background: location.state === "Mentor" 
+               ? "linear-gradient(to bottom right, #4F46E5, #818CF8)" 
+               : location.state === "Mentee" 
+                 ? "linear-gradient(to bottom right, #2563EB, #60A5FA)" 
+                 : "linear-gradient(to bottom right, #1E40AF, #3B82F6)"
+           }}>
+        <div className="max-w-lg">
+          
+          <h1 className="text-5xl font-bold text-white mb-6">
+            {location.state === "Mentor" 
+              ? "Share Knowledge, Inspire Growth" 
+              : location.state === "Mentee" 
+                ? "Learn, Grow, Achieve" 
+                : "Platform Management"}
           </h1>
-          <img
-            src="/images/illustrator_2.png"
-            alt="Illustrator background"
-            className="w-3/4 object-contain"
-          />
+          <p className="text-blue-100 text-xl leading-relaxed mb-8">
+            {location.state === "Mentor"
+              ? toggleLogin
+                ? "Join our community of mentors and help shape the next generation of professionals through your expertise and guidance."
+                : "Welcome back, mentor! Continue your journey of guiding and inspiring learners."
+              : location.state === "Mentee"
+                ? toggleLogin
+                  ? "Connect with experienced mentors who will guide you through your learning journey and help you achieve your goals."
+                  : "Welcome back, mentee! Continue your learning journey with guidance from expert mentors."
+                : "Access administrative tools to manage and optimize the mentorship platform experience."}
+          </p>
+          <div className="p-6 bg-white/10 backdrop-blur-sm rounded-lg">
+            <h3 className="text-white text-lg font-medium mb-2">
+              {location.state === "Mentor"
+                ? "As a Mentor, you can:"
+                : location.state === "Mentee"
+                  ? "As a Mentee, you can:"
+                  : "As an Admin, you can:"}
+            </h3>
+            <ul className="text-blue-100 space-y-2">
+              {location.state === "Mentor" ? (
+                <>
+                  <li className="flex items-center">
+                    <span className="mr-2">•</span> Create personalized learning plans
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2">•</span> Share your industry expertise
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2">•</span> Guide students through challenges
+                  </li>
+                </>
+              ) : location.state === "Mentee" ? (
+                <>
+                  <li className="flex items-center">
+                    <span className="mr-2">•</span> Connect with expert mentors
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2">•</span> Access structured learning paths
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2">•</span> Track your progress and growth
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="flex items-center">
+                    <span className="mr-2">•</span> Manage user accounts and access
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2">•</span> Monitor platform performance
+                  </li>
+                  <li className="flex items-center">
+                    <span className="mr-2">•</span> Generate reports and analytics
+                  </li>
+                </>
+              )}
+            </ul>
+          </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 max-h-screen overflow-y-auto">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8 md:hidden text-center">
-            {location.state} {toggleLogin ? "Sign Up" : "Sign In"}
-          </h2>
+      {/* Right side - form area */}
+      <div className="w-full lg:w-1/2 flex justify-center items-center p-4 sm:p-8">
+        <div className={`w-full max-w-md ${isMentorSignUp ? "max-w-lg" : ""}`}>
+          {/* Modal for forgot password */}
+          <CSSTransition
+            nodeRef={overlayRef}
+            in={showModal}
+            timeout={300}
+            classNames="overlay"
+            unmountOnExit
+          >
+            <ModalOverlay nodeRef={overlayRef} />
+          </CSSTransition>
+          
+          <CSSTransition
+            nodeRef={modalRef}
+            in={showModal}
+            timeout={300}
+            classNames="modal"
+            unmountOnExit
+          >
+            <ForgotPasswordModal
+              nodeRef={modalRef}
+              setShowModal={setShowModal}
+              setFPEmail={setFPEmail}
+              FPEmail={FPEmail}
+            />
+          </CSSTransition>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-800">
+              {location.state}{" "}
+              <span className="text-blue-600">
+                {toggleLogin ? "Sign Up" : "Sign In"}
+              </span>
+            </h2>
+            <p className="text-gray-600 mt-2">
+              {toggleLogin
+                ? "Create your account to get started"
+                : "Sign in to access your account"}
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Name Fields - Only show on signup */}
             {toggleLogin && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label
                     htmlFor="firstName"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    First name
+                    First Name
                   </label>
                   <input
                     id="firstName"
@@ -174,23 +304,8 @@ const Auth = ({ location }) => {
                     value={fields.firstName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="middleName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Middle name
-                  </label>
-                  <input
-                    id="middleName"
-                    name="middleName"
-                    type="text"
-                    value={fields.middleName}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="John"
                   />
                 </div>
                 <div>
@@ -198,7 +313,7 @@ const Auth = ({ location }) => {
                     htmlFor="lastName"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    Last name
+                    Last Name
                   </label>
                   <input
                     id="lastName"
@@ -207,12 +322,14 @@ const Auth = ({ location }) => {
                     value={fields.lastName}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="Doe"
                   />
                 </div>
               </div>
             )}
 
+            {/* Mentee specific fields */}
             {toggleLogin && location.state === "Mentee" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -229,7 +346,8 @@ const Auth = ({ location }) => {
                     value={fields.enrollmentNo.toUpperCase()}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="ENR123456"
                   />
                 </div>
                 <div>
@@ -245,25 +363,144 @@ const Auth = ({ location }) => {
                     value={fields.semester}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   >
                     <option value="">Select semester</option>
-                    <option value="1st semester">1st semester</option>
-                    <option value="2nd semester">2nd semester</option>
-                    <option value="3rd semester">3rd semester</option>
-                    <option value="4th semester">4th semester</option>
-                    <option value="5th semester">5th semester</option>
-                    <option value="6th semester">6th semester</option>
-                    <option value="7th semester">7th semester</option>
-                    <option value="8th semester">8th semester</option>
-                    <option value="9th semester">9th semester</option>
-                    <option value="10th semester">10th semester</option>
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <option key={i} value={`${i + 1}${["st", "nd", "rd"][i] || "th"} semester`}>
+                        {i + 1}{["st", "nd", "rd"][i] || "th"} semester
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
             )}
 
-            {toggleLogin && (
+            {/* Mentor specific fields */}
+            {toggleLogin && location.state === "Mentor" && (
+              <>
+                <div>
+                  <label
+                    htmlFor="department"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Department
+                  </label>
+                  <select
+                    id="department"
+                    name="department"
+                    value={fields.department}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  >
+                    <option value="">Select department</option>
+                    <option value="Computer Science & Engineering">
+                      Computer Science & Engineering
+                    </option>
+                    {/* Add more departments as needed */}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label
+                      htmlFor="experience"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Experience (years)
+                    </label>
+                    <input
+                      id="experience"
+                      name="experience"
+                      type="number"
+                      min="0"
+                      value={fields.experience}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      placeholder="5"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="specialization"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Specialization
+                    </label>
+                    <input
+                      id="specialization"
+                      name="specialization"
+                      type="text"
+                      value={fields.specialization}
+                      onChange={handleChange}
+                      required
+                      placeholder="Machine Learning, Web Dev, etc."
+                      className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="qualificationProof"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Qualification Proof
+                  </label>
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                    <div className="space-y-1 text-center">
+                      <svg
+                        className="mx-auto h-12 w-12 text-gray-400"
+                        stroke="currentColor"
+                        fill="none"
+                        viewBox="0 0 48 48"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4h-12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                          strokeWidth={2}
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      <div className="flex text-sm text-gray-600">
+                        <label
+                          htmlFor="qualificationProof"
+                          className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
+                        >
+                          <span>Upload a file</span>
+                          <input
+                            id="qualificationProof"
+                            name="qualificationProof"
+                            type="file"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            onChange={handleFileChange}
+                            required
+                            className="sr-only"
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        PDF, DOC, JPG, PNG up to 10MB
+                      </p>
+                      {fields.qualificationProof && (
+                        <p className="text-sm text-green-600">
+                          File selected: {typeof fields.qualificationProof === 'object' ? 
+                            fields.qualificationProof.name : 'File selected'}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Department field (for non-mentor signups) */}
+            {toggleLogin && location.state !== "Mentor" && (
               <div>
                 <label
                   htmlFor="department"
@@ -277,16 +514,18 @@ const Auth = ({ location }) => {
                   value={fields.department}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                 >
                   <option value="">Select department</option>
                   <option value="Computer Science & Engineering">
                     Computer Science & Engineering
                   </option>
+                  {/* Add more departments as needed */}
                 </select>
               </div>
             )}
 
+            {/* Email field - always visible */}
             <div>
               <label
                 htmlFor="email"
@@ -301,49 +540,86 @@ const Auth = ({ location }) => {
                 value={fields.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                placeholder="your.email@example.com"
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type={showPass}
-                value={fields.password}
-                onChange={handleChange}
-                required
-                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
+            {/* Password fields */}
+            {toggleLogin ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPass}
+                    value={fields.password}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="••••••••"
+                  />
+                </div>
 
-            {toggleLogin && (
+                <div>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Confirm password
+                  </label>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showPass}
+                    value={fields.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+            ) : (
               <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Confirm password
-                </label>
+                <div className="flex items-center justify-between">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Password
+                  </label>
+                </div>
                 <input
-                  id="confirmPassword"
-                  name="confirmPassword"
+                  id="password"
+                  name="password"
                   type={showPass}
-                  value={fields.confirmPassword}
+                  value={fields.password}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder="••••••••"
                 />
+                {!toggleLogin && (
+                    <button
+                      type="button"
+                      onClick={() => setShowModal(true)}
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
               </div>
             )}
 
-            <div className="flex items-center justify-between">
+            {/* Show password checkbox */}
+            <div className="flex items-center">
               <FormControlLabel
                 onChange={handlePasswordShowToggle}
                 control={
@@ -356,39 +632,32 @@ const Auth = ({ location }) => {
                     }}
                   />
                 }
-                label="Show password"
-              />
-              {!toggleLogin && (
-                <button
-                  type="button"
-                  onClick={() => setShowModal(true)}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                  Forgot password?
-                </button>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-400 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-blue-500 transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              {toggleLogin ? "Sign up" : "Sign in"}
-              <ArrowRight
-                alt={false}
-                myStyle={
-                  "h-4 w-4 group-hover:translate-x-2 transform transition"
+                label={
+                  <span className="text-sm text-gray-700">Show password</span>
                 }
               />
-            </button>
+            </div>
+
+            {/* Submit button */}
+            <div>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 shadow-md"
+              >
+                {toggleLogin ? "Create Account" : "Sign in"}
+                <ArrowRight
+                  alt={false}
+                  myStyle={"h-4 w-4 group-hover:translate-x-2 transform transition"}
+                />
+              </button>
+            </div>
           </form>
 
+          {/* Toggle between signin/signup */}
           {location.state !== "Admin" && (
             <div className="mt-8 text-center">
               <p className="text-gray-600">
-                {toggleLogin
-                  ? "Already have an account?"
-                  : "Don't have an account?"}
+                {toggleLogin ? "Already have an account?" : "Don't have an account?"}
                 <button
                   onClick={handleToggle}
                   className="ml-2 text-blue-600 hover:text-blue-800 font-medium"

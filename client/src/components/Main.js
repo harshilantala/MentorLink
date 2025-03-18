@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useHistory } from "react-router";
@@ -84,7 +85,7 @@ const Main = () => {
                 className={`p-4 rounded-lg cursor-pointer transition-all duration-200 ${
                   value === role
                     ? "bg-white text-blue-600 shadow-lg transform -translate-y-1"
-                    : "bg-blue-700/50 text-white hover:bg-blue-700/70"
+                    : "bg-blue-700/7 text-white hover:bg-blue-700/70"
                 }`}
                 onClick={() => setValue(role)}
               >

@@ -26,10 +26,7 @@ function Home() {
           backgroundImage: "url('/images/background1.jpg')",
         }}
       >
-        {/* Dark overlay */}
-        <div className="absolute inset-0 bg-black opacity-40" />
-
-        {/* Content */}
+        <div className="absolute inset-0 bg-black/40" />
         <div className="relative z-10 container mx-auto px-6 text-center text-white">
           <h1
             className="font-bold mb-6 animate-fade-in-up"
@@ -45,7 +42,6 @@ function Home() {
             MentorLink is a platform that connects mentors and mentees for
             personalized guidance, career advice, and learning opportunities.
           </p>
-
           <div className="flex justify-center animate-fade-in-up">
             <button
               onClick={() =>
@@ -196,7 +192,7 @@ function Home() {
           </div>
         </div>
       </div>
-
+      
       <div id="qna" className="py-20 bg-white">
         <div className="container mx-auto px-6">
           <h2 className="text-3xl font-bold text-center mb-12 animate-fade-in-up">
@@ -238,7 +234,7 @@ function Home() {
           </div>
         </div>
       </div>
-
+      
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
         <div className="container mx-auto px-6">
