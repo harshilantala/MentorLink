@@ -98,12 +98,14 @@ export const mentorGetAllMenteeSemesters =
 export const mentorGetProfile = () => async (dispatch) => {
     try {
         const { data } = await api.getProfile();
-        console.log("mentor profile in actions", data);
+        console.log("mentor profile in actions -----------------------------------", data);
 
         //check if the response data is error
         if (data.code === 200) {
             const profile = data.data.profileData;
-            return dispatch({ type: "FETCH_MENTOR_PROFILE", profile });
+            console.log("------------########****--------profiledata-------********######------------"+profile);
+            const { firstName, lastName, middleName } = profile;
+            return (dispatch({ type: "FETCH_MENTOR_PROFILE", profile: { firstName, lastName, middleName, ...profile } }));
         } else {
             showToast("error", data.msg, 10000, toast.POSITION.BOTTOM_LEFT);
         }

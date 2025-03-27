@@ -12,7 +12,7 @@ const Chat = require("./models/Chat");
 const { rateLimiter } = require("./middlewares/rateLimiter");
 
 // mongoose config
-require("./config/mongoose");
+ const connectDB = require("./config/mongoose");
 //env config
 dotenv.config();
 
@@ -57,9 +57,14 @@ const messageRoutes = require("./routes/message");
 const notificationRoutes = require("./routes/notification");
 const meetingRoutes = require("./routes/meeting");
 
+
+connectDB()
+
 // setting routes
 app.use("/", indexRoutes);
+console.log("Loading admin routes...");
 app.use("/admin", adminRoutes);
+console.log("Admin routes loaded!");
 app.use("/mentor", mentorRoutes);
 app.use("/student", studentRoutes);
 app.use("/posts", postRoutes);
@@ -73,11 +78,11 @@ app.use("/meetings", meetingRoutes);
 //     res.render("notFound");
 // })
 
-const server = app.listen(5000, () => console.log(`server running on port ${PORT}`));
+const server = app.listen(5000, () => console.log(`server running on port ${PORT}`  ));
 
 const io = new Server(server, {
     pingTimeout: 60000,
-    cors: {
+    cors: { 
         origin: "*",
     },
 });
@@ -90,3 +95,6 @@ socket.start(io);
 
 // crons
 require("./crons/interaction.cron");
+
+
+    

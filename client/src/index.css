@@ -89,6 +89,9 @@ input[type="file"]::file-selector-button {
     transition: opacity 100ms;
 }
 
+
+/* bolt */
+
 @keyframes fadeInUp {
     from {
       opacity: 0;
@@ -100,6 +103,46 @@ input[type="file"]::file-selector-button {
     }
   }
   
-  .animate-fade-in-up {
-    animation: fadeInUp 0.5s ease-out forwards;
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
+  
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  
+  .animate-slide-in {
+    animation: slideInRight 0.6s ease-out forwards;
+  }
+  
+  .animate-pulse-blue {
+    animation: pulse 2s infinite;
+  }
+  
+  .stagger > * {
+    opacity: 0;
+  }
+  
+  .stagger > *:nth-child(1) { animation-delay: 0.1s; }
+  .stagger > *:nth-child(2) { animation-delay: 0.2s; }
+  .stagger > *:nth-child(3) { animation-delay: 0.3s; }
+  .stagger > *:nth-child(4) { animation-delay: 0.4s; }

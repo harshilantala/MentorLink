@@ -20,6 +20,8 @@ import Profile from "./dashboardLinks/profile/Profile";
 import AcademicDetails from "./dashboardLinks/academicdetails/AcademicDetails";
 import ManageGroups from "./dashboardLinks/manageGroups/ManageGroups";
 import Logs from "./dashboardLinks/logs/Logs";
+import MenteeFeedbackForm from "../../feedback/MenteeFeedbackForm";
+import MentorFeedbackForm from "../../feedback/MentorFeedbackForm";
 
 import { getAllChat, logoutChats } from "../../../actions/chat";
 import LogoutIcon from "../../../assets/icons/LogoutIcon";
@@ -154,6 +156,7 @@ const MentorDashboard = () => {
     logs: false,
     meetings: false,
     allInteractions: role === Roles.ADMIN ? true : false,
+    feedback: false,
   });
 
   // state to control the chat notification on the dashboard tab
@@ -243,9 +246,8 @@ const MentorDashboard = () => {
           localStorage.getItem("visible") !== null &&
           JSON.parse(localStorage.getItem("visible"))
         )
-          notification(
-            data
-          ); // notification when scroll to bottom button visible
+          notification(data);
+        // notification when scroll to bottom button visible
         else if (!JSON.parse(localStorage.getItem("chatRoute"))) {
           setNewMsgNotify(true);
           // notification when selected chat is same but in different tab
@@ -428,6 +430,22 @@ const MentorDashboard = () => {
           logs: false,
           meetings: true,
           allInteractions: false,
+        });
+        break;
+      case "feedback":
+        setVals({ chatRoute: false, postRoute: false });
+        setRoute({
+          home: false,
+          post: false,
+          menteeInfo: false,
+          profile: false,
+          chat: false,
+          academicDetails: false,
+          manageGroups: false,
+          logs: false,
+          meetings: false,
+          allInteractions: false,
+          feedback: true,
         });
         break;
       default:
@@ -671,6 +689,25 @@ const MentorDashboard = () => {
                   Logs
                 </button>
               )}
+              {role !== Roles.ADMIN && (
+                <button
+                  onClick={handleRouteChange}
+                  id="feedback"
+                  className={`${
+                    route.feedback
+                      ? "text--gray-700 bg-gray-100"
+                      : "text-gray-400"
+                  } flex items-center text-left hover:bg-gray-100 mt-5 ml-8 mr-8 pt-3 pb-3 pl-10 rounded-md`}
+                >
+                  <AnnotationIcon
+                    myStyle={"h-5 w-5 mr-3 pointer-events-none"
+                      .concat(" ")
+                      .concat(route.feedback && "text-blue-600")}
+                    alt={true}
+                  />
+                  Feedback
+                </button>
+              )}
               <button
                 onClick={handleLogout}
                 id="profile"
@@ -785,6 +822,8 @@ const MentorDashboard = () => {
                     setStreamUpdated={setStreamUpdated}
                   />
                 )}
+                {route.feedback && role === Roles.MENTOR && <MentorFeedbackForm />}
+                {route.feedback && role === Roles.STUDENT && <MenteeFeedbackForm />}
                 {route.menteeInfo && <MenteeInfo />}
                 {route.chat && <Chat />}
                 {route.profile && <Profile profileData={profileData} />}

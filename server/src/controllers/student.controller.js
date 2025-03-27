@@ -99,9 +99,9 @@ module.exports = {
             const student = new Student();
             student.email = email;
             student.password = await bcrypt.hash(password, 8);
-            student.firstname = firstName;
-            student.middlename = middleName === "" ? "" : middleName;
-            student.lastname = lastName;
+            student.firstName = firstName;
+            student.middleName = middleName === "" ? "" : middleName;
+            student.lastName = lastName;
             student.enrollment_no = enrollmentNo;
             student.semester = semester;
             student.department = department;

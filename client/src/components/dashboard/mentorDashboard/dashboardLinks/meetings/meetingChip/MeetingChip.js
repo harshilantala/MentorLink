@@ -18,7 +18,7 @@ const MeetingChip = ({ mentee, handleChange, participants }) => {
                     alt=""
                 />
                 <div className="flex flex-col">
-                    <h5>{`${mentee?.firstname} ${mentee?.middlename} ${mentee?.lastname}`}</h5>
+                    <h5>{`${mentee?.firstName} ${mentee?.middleName} ${mentee?.lastName}`}</h5>
                     <h6>{mentee?.enrollment_no ? mentee?.enrollment_no : "Mentor"}</h6>
                 </div>
             </div>

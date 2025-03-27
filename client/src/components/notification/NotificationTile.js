@@ -76,7 +76,7 @@ const NotificationTile = ({
                         {text}
                     </p>
                     <div className="text-gray-400 flex items-center justify-start">
-                        <h6 className="text-left">{`${creator?.firstname} ${creator?.middlename} ${creator?.lastname}`}</h6>
+                        <h6 className="text-left">{`${creator?.firstName} ${creator?.middleName} ${creator?.lastName}`}</h6>
                         <div className="mx-2 w-1.5 h-1.5 rounded-full bg-gray-400"></div>
                         <h6>{moment(content?.createdAt).format("LLL")}</h6>
                     </div>

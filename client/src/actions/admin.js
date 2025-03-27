@@ -6,6 +6,8 @@ import { showToast } from "../components/toast/toast";
 export const adminSignIn = (fields, history) => async (dispatch) => {
     try {
         const { data } = await api.signIn(fields);
+        
+        console.log(data)
         if (data.code === 200) {
             dispatch({ type: "SIGN_IN_ADMIN", data });
             history.push("/admin/dashboard");

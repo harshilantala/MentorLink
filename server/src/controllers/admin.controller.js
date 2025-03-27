@@ -59,6 +59,30 @@ module.exports = {
         next();
     },
 
+
+    getAllMentors: async (req, res) => {
+            try {
+                const mentors = await Mentor.find().select("firstname middlename lastname qualificationProof");
+    
+                if (!mentors.length) {
+                    return res.status(404).json({ message: "No mentors found" });
+                }
+    
+                res.status(200).json(
+                    mentors.map(mentor => ({
+                        firstname: mentor.firstname,
+                        middlename: mentor.middlename || "",
+                        lastname: mentor.lastname || "",
+                        qualificationProof: mentor.qualificationProof?.url || ""
+                    }))
+                );
+            } catch (error) {
+                res.status(500).json({ message: "Server error", error: error.message });
+            }
+        },
+    
+
+
     /**
      *  saveGroup route saves the mentor and students group.
      *  We store the mentor's id in every student's property named "mentordBy" , to establish a link

@@ -8,6 +8,11 @@ const Semester = require("../models/Semester");
 const response = require("../utils/responses.utils");
 const emailService = require("../services/email.service");
 const roles = require("../utils/roles");
+const { uploadFile, cloudinary } = require("../utils/cloudnary");
+const path = require("path");
+const fs = require("fs");
+const { log } = require("console");
+const MentorFeedback = require('../models/Feedbackmentor');
 
 // env config
 dotenv.config();
@@ -34,7 +39,7 @@ module.exports = {
             //     );
 
             //     mentor.emailVerifyToken = token;
-               await mentor.save();
+            await mentor.save();
 
             //     // sending email to mentor with link
             //     emailService.sendEmailVerificationMail(token, mentor.email);
@@ -71,7 +76,8 @@ module.exports = {
         }
     },
 
-    // mentor signup handler
+    // mentor signup handl
+
     mentorSignupHandler: async (req, res, next) => {
         try {
             const {
@@ -82,50 +88,91 @@ module.exports = {
                 lastName,
                 middleName,
                 department,
+                experience,
+                specialization,
             } = req.body;
-
-            if (!email || !password || !confirmPassword || !firstName) {
-                return res.status(400).send(Response.badrequest("Malformed input", {}));
+    
+            if (!email || !password || !confirmPassword) {
+                return res.status(400).json({ error: "Malformed input" });
             }
-
-            if (password != confirmPassword) {
-                return res.status(400).send(Response.badrequest("Passwords doesn't match", {}));
+    
+            if (password !== confirmPassword) {
+                return res.status(400).json({ error: "Passwords don't match" });
             }
-
-            const mentor = new Mentor();
-            mentor.email = email;
-            mentor.password = await bcrypt.hash(password, 8);
-            mentor.firstname = firstName;
-            mentor.middlename = middleName ? middleName : "";
-            mentor.lastname = lastName ? lastName : "";
-            mentor.department = department;
-            mentor.isEmailVerified = true
-            // const token = await jwt.sign(
-            //     { _id: mentor._id.toString(), role: roles.Mentor },
-            //     process.env.JWT_SECRET
-            // );
-
-            // mentor.emailVerifyToken = token;
-            // mentor.emailVerifyToken = "";
+    
+            if (!req.file) {
+                return res.status(400).json({ error: "Qualification proof is required" });
+            }
+    
+            console.log("Uploading image to Cloudinary...");
+    
+            // ✅ Upload image to Cloudinary
+            const uploadToCloudinary = async (buffer) => {
+                return new Promise((resolve, reject) => {
+                    const uploadStream = cloudinary.uploader.upload_stream(
+                        { folder: "mentor_qualifications", resource_type: "image" },
+                        (error, result) => {
+                            if (error) {
+                                console.error("Cloudinary upload error:", error);
+                                return reject(error);
+                            }
+                            resolve(result.secure_url);
+                        }
+                    );
+                    uploadStream.end(buffer);
+                });
+            };
+    
+            let qualificationProofUrl;
+            try {
+                qualificationProofUrl = await uploadToCloudinary(req.file.buffer);
+                console.log("Cloudinary upload successful:", qualificationProofUrl);
+            } catch (uploadErr) {
+                console.error("Cloudinary upload failed:", uploadErr);
+                return res.status(500).json({ error: "Image upload failed" });
+            }
+    
+            if (!qualificationProofUrl) {
+                return res.status(500).json({ error: "Image URL is empty after upload" });
+            }
+    
+            const saltRounds = 10;
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
+            // ✅ Save mentor details in database
+            const mentor = new Mentor({
+                email,
+                password: hashedPassword,
+                firstName: firstName,
+                middleName: middleName || "",
+                lastName: lastName || "",
+                department,
+                experience,
+                specialization,
+                qualificationProof: { url: qualificationProofUrl },  // Ensure this matches schema
+            });
+    
+            // Log qualification proof URL
+            console.log(qualificationProofUrl);
+    
             await mentor.save();
-
-            // sending email to mentor with link
-            // emailService.sendEmailVerificationMail(token, mentor.email);
-
-            response.success(res, "Mentor Signup successfull", {});
-            req.user = mentor;
-
+    
+            // ✅ Pass mentor object to next middleware (Logger)
+            res.locals.mentor = mentor;
+    
+            res.status(201).json({ message: "Mentor Signup successful", mentor });
             next();
         } catch (err) {
-            console.log(err);
-
-            if (err.code == "11000") {
-                return response.error(res, "Email already exists", {});
+            console.error("Signup error:", err);
+    
+            if (err.code === 11000) {
+                return res.status(400).json({ error: "Email already exists" });
             }
-
-            response.error(res);
+    
+            res.status(500).json({ error: "Internal Server Error" });
         }
-    },
+    },    
+    
 
     // mentor dashboard handler
     mentorDashboardHandler: async (req, res, next) => {
@@ -238,18 +285,21 @@ module.exports = {
     // create or update profile
     updateProfile: async (req, res, next) => {
         try {
-            const { firstname, middlename, lastname, phone, address, department, designation } =
+            const { firstName, middleName, lastName, phone, address, department, designation } =
                 req.body;
             const mentor = req.user;
 
             // updating data
-            mentor.firstname = firstname || mentor.firstname;
-            mentor.middlename = middlename || "";
-            mentor.lastname = lastname || mentor.lastname;
+            mentor.firstName = firstName || mentor.firstName;
+            mentor.middleName = middleName || "";
+            mentor.lastName = lastName || mentor.lastName;
             mentor.phone = phone || mentor.phone;
             mentor.address = address || mentor.address;
             mentor.department = department || mentor.department;
             mentor.designation = designation || mentor.designation;
+
+            console.log(mentor.firstName);
+            
 
             await mentor.save();
             response.success(res, "Profile updated", { profileData: mentor });
@@ -258,4 +308,47 @@ module.exports = {
             response.error(res);
         }
     },
-};
+
+
+
+    submitFeedback : async (req, res) => {
+        try {
+            console.log("🔹 Received Data:", req.body);
+    
+            // Validate data before saving
+            const { conceptualUnderstanding, natureAndAttitude, behaviorAndProfessionalism, overallRating, additionalFeedback } = req.body;
+    
+            // Ensure required fields exist
+            if (!conceptualUnderstanding || !natureAndAttitude || !behaviorAndProfessionalism || !overallRating) {
+                return res.status(400).json({ message: "All required fields must be filled." });
+            }
+    
+            // Ensure overall rating is within range
+            if (overallRating < 1 || overallRating > 5) {
+                return res.status(400).json({ message: "Overall rating must be between 1 and 5." });
+            }
+    
+            // Create feedback instance
+            const feedback = new MentorFeedback({
+                conceptualUnderstanding,
+                natureAndAttitude,
+                behaviorAndProfessionalism,
+                overallRating,
+                additionalFeedback
+            });
+    
+            // Save to database
+            const savedFeedback = await feedback.save();
+    
+            console.log(" Feedback Saved:", savedFeedback);
+            res.status(201).json({
+                message: "Feedback submitted successfully",
+                feedback: savedFeedback
+            });
+        } catch (error) {
+            console.error(" Error Saving Feedback:", error);
+            res.status(500).json({ message: "Server error", error: error.message });
+        }
+    },
+      
+};  

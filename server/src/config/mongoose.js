@@ -1,18 +1,22 @@
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 
-// dotenv config
-dotenv.config();
+// Load environment variables
+dotenv.config(); 
 
-mongoose.connect(
-    'mongodb://127.0.0.1:27017/mentors',
-    {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        useCreateIndex: true,
-        useFindAndModify: false,
-    },
-    () => {
-        console.log("Connected to Database");
+const connectDB = async () => {
+    try {
+        await mongoose.connect('mongodb://127.0.0.1:27017/mentors', {
+            useNewUrlParser: true,
+            useUnifiedTopology: true,
+            autoIndex: false, 
+           
+        });
+        console.log(" Connected to MongoDB successfully!");
+    } catch (error) {
+        console.error(" MongoDB connection error:", error);
+        process.exit(1);
     }
-);
+};
+
+module.exports = connectDB;

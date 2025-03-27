@@ -1,3 +1,4 @@
+
 import API from "./index";
 
 export const fetchAllPost = (page) =>
@@ -5,15 +6,10 @@ export const fetchAllPost = (page) =>
         return error.response;
     });
 
-    export const submitPost = (post) =>
-        API.post("/posts", post, {
-            headers: {
-                "Content-Type": "multipart/form-data", // Ensure file uploads work
-            },
-        }).catch((error) => {
-            return error.response;
-        });
-    
+export const submitPost = (post) =>
+    API.post("/posts", post).catch((error) => {
+        return error.response;
+    });
 
 export const updatePost = (post, postId) =>
     API.post(`/posts/${postId}/edit`, post).catch((error) => {

@@ -114,7 +114,7 @@ const MeetingTile = ({
                     alt="img"
                 />
                 <div className="flex-grow">
-                    <h5>{`${host?.firstname} ${host?.middlename} ${host?.lastname}`}</h5>
+                    <h5>{`${host?.firstName} ${host?.middleName} ${host?.lastName}`}</h5>
                     <h6 className="text-gray-600">{moment(updatedAt).format("DD/MM/yyyy")}</h6>
                 </div>
                 {role === Roles.MENTOR && (
@@ -173,7 +173,7 @@ const MeetingTile = ({
                         <Tooltip
                             key={i}
                             arrow
-                            title={`${p?.user?.firstname} ${p?.user?.middlename} ${p?.user?.lastname}`}
+                            title={`${p?.user?.firstName} ${p?.user?.middleName} ${p?.user?.lastName}`}
                         >
                             <Chip
                                 avatar={

@@ -17,7 +17,7 @@ const MenteeDetailsTile = ({ mentee, semesters }) => {
                                 ? `https://api.dicebear.com/9.x/personas/svg`
                                 : mentee.avatar.url
                         }
-                        alt={`${mentee.firstname}'s avatar`}
+                        alt={`${mentee.firstName}'s avatar`}
                     />
                     <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white text-xs px-3 py-1 rounded-full">
                         {mentee.semester}
@@ -27,7 +27,7 @@ const MenteeDetailsTile = ({ mentee, semesters }) => {
                 {/* Basic Info */}
                 <div className="flex flex-col flex-grow gap-y-2">
                     <h3 className="text-xl font-semibold text-gray-800 transition-colors duration-300">
-                        {`${mentee.firstname} ${mentee.middlename} ${mentee.lastname}`}
+                        {`${mentee.firstName} ${mentee.middleName} ${mentee.lastName}`}
                     </h3>
                     
                     <div className="flex items-center gap-x-3 text-gray-600">

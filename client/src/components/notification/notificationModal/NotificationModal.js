@@ -20,7 +20,7 @@ const NotificationModal = ({ notification, nodeRef, setShowNotificationModal, se
                                 alt="authorImage"
                             />
                             <div>
-                                <h3>{`${notification?.creator.firstname} ${notification?.creator.middlename} ${notification?.creator.lastname}`}</h3>
+                                <h3>{`${notification?.creator.firstName} ${notification?.creator.middleName} ${notification?.creator.lastName}`}</h3>
                                 <div className="flex items-center justify-center">
                                     <h6>
                                         {moment(notification?.content?.createdAt).format("LLL")}
@@ -66,7 +66,7 @@ const NotificationModal = ({ notification, nodeRef, setShowNotificationModal, se
                             alt="img"
                         />
                         <div className="flex-grow">
-                            <h5>{`${notification?.creator?.firstname} ${notification?.creator?.middlename} ${notification?.creator?.lastname}`}</h5>
+                            <h5>{`${notification?.creator?.firstName} ${notification?.creator?.middleName} ${notification?.creator?.lastName}`}</h5>
                             <h6 className="text-gray-600">
                                 {moment(notification?.content?.updatedAt).format("DD/MM/yyyy")}
                             </h6>

@@ -37,18 +37,12 @@ export const getOlderPosts = (history, page, setOldPostLoading) => async (dispat
     }
 };
 
-export const submitPost = (history, post, imageFile, socket, executeScroll) => async (dispatch) => {
+export const submitPost = (history, post, socket, executeScroll) => async (dispatch) => {
     try {
-        const formData = new FormData();
-        formData.append("text", post.text); // Assuming text content exists
-        if (imageFile) {
-            formData.append("image", imageFile); // Attach the image file
-        }
-
-        const { data } = await api.submitPost(formData); // API call
-
+        const { data } = await api.submitPost(post);
         console.log("submit post in actions", data);
 
+        //check if the response data is error
         if (data.code === 200) {
             const post = data.data;
             dispatch({ type: "ADD_SINGLE_POST", post });
@@ -61,7 +55,6 @@ export const submitPost = (history, post, imageFile, socket, executeScroll) => a
         console.log(error);
     }
 };
-
 
 export const updatePost = (history, postId, post) => async (dispatch) => {
     try {

@@ -6,7 +6,7 @@ export const signIn = (fields) =>
     });
 
 export const fetchAdmin = () =>
-    API.get("/admin/dashboard").catch((error) => {
+    API.get("/admin/dashboard").catch((error) => {  
         return error.response;
     });
 

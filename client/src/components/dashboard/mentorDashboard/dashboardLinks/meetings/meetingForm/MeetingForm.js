@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useRef, useState, useEffect} from "react";
 import DTP from "../dtp/DTP";
 import EventIcon from "@mui/icons-material/Event";
 import LinkIcon from "@mui/icons-material/Link";
@@ -7,148 +7,196 @@ import { CSSTransition } from "react-transition-group";
 import ModalOverlay from "../../../../../modal/ModalOverlay";
 import MeetingModal from "../meetingModal/MeetingModal";
 import { SocketContext } from "../../../../../../socket/socket";
-import "./MeetingForm.css"; // We'll create this CSS file
+import "./MeetingForm.css";
+import { JitsiMeeting } from "@jitsi/react-sdk";
 
 const MeetingForm = ({ meeting, setMeeting }) => {
-    const [isValidDateTime, setIsValidDateTime] = useState(true);
-    const [dateProvided, setDateProvided] = useState(true);
-    const [focused, setFocused] = useState({
-        description: false,
-        url: false,
+  const [isValidDateTime, setIsValidDateTime] = useState(true);
+  const [dateProvided, setDateProvided] = useState(true);
+  const [focused, setFocused] = useState({
+    description: false,
+    url: false,
+  });
+  const [jitsiRoom, setJitsiRoom] = useState("");
+  
+  // Generate a unique Jitsi room ID when component mounts
+  useEffect(() => {
+    generateJitsiRoom();
+  }, []);
+  
+  // Function to generate a new unique Jitsi room ID
+  const generateJitsiRoom = () => {
+    const newRoomId = `mentorlink-${Math.random().toString(36).substr(2, 9)}`;
+    setJitsiRoom(newRoomId);
+    setMeeting((prev) => ({
+      ...prev,
+      url: `https://meet.jit.si/${newRoomId}`,
+    }));
+  };
+
+  // function to handle the date change and logic to prevent previous date selection
+  const handleDateChange = (newDate) => {
+    if (newDate == null) {
+      setMeeting({ ...meeting, date: newDate });
+      setIsValidDateTime(true);
+    } else {
+      const curDate = new Date();
+      if (newDate.toISOString() < curDate.toISOString()) {
+        setIsValidDateTime(false);
+        setMeeting({ ...meeting, date: null });
+      } else {
+        setIsValidDateTime(true);
+        setDateProvided(true);
+        setMeeting({ ...meeting, date: newDate.toISOString() });
+      }
+    }
+  };
+
+  // function to handle change of the state value of the meeting state obj
+  const handleChange = (e) => {
+    setMeeting({
+      ...meeting,
+      [e.target.name]: e.target.value,
     });
+  };
 
-    // function to handle the date change and logic to prevent previous date selection
-    const handleDateChange = (newDate) => {
-        if (newDate == null) {
-            setMeeting({ ...meeting, date: newDate });
-            setIsValidDateTime(true);
-        } else {
-            const curDate = new Date();
-            if (newDate.toISOString() < curDate.toISOString()) {
-                setIsValidDateTime(false);
-                setMeeting({ ...meeting, date: null });
-            } else {
-                setIsValidDateTime(true);
-                setDateProvided(true);
-                setMeeting({ ...meeting, date: newDate.toISOString() });
-            }
-        }
-    };
+  // function to handle form submit
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (meeting.date == null) {
+      setDateProvided(false);
+      return;
+    }
+    
+    // Generate a new Jitsi room ID when scheduling a meeting
+    generateJitsiRoom();
+    
+    setShowMeetingModal(true);
+    setShowOverlay(true);
+  };
 
-    // function to handle change of the state value of the meeting state obj
-    const handleChange = (e) => {
-        setMeeting({
-            ...meeting,
-            [e.target.name]: e.target.value,
-        });
-    };
+  // state to control the modal show and dont show
+  const [showOverlay, setShowOverlay] = useState(false);
+  const [showMeetingModal, setShowMeetingModal] = useState(false);
 
-    // function to handle form submit
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (meeting.date == null) {
-            setDateProvided(false);
-            return;
-        }
-        setShowMeetingModal(true);
-        setShowOverlay(true);
-    };
+  // node refs for the modals
+  const meetingModalRef = useRef(null);
+  const overlayRef = useRef(null);
 
-    // state to control the modal show and dont show
-    const [showOverlay, setShowOverlay] = useState(false);
-    const [showMeetingModal, setShowMeetingModal] = useState(false);
+  const socket = useContext(SocketContext);
 
-    // node refs for the modals
-    const meetingModalRef = useRef(null);
-    const overlayRef = useRef(null);
+  return (
+    <div className="meeting-form-container">
+      <CSSTransition
+        nodeRef={overlayRef}
+        in={showOverlay}
+        timeout={300}
+        classNames="overlay"
+        unmountOnExit
+      >
+        <ModalOverlay nodeRef={overlayRef} />
+      </CSSTransition>
+      <CSSTransition
+        nodeRef={meetingModalRef}
+        in={showMeetingModal}
+        timeout={300}
+        classNames="modal"
+        unmountOnExit
+      >
+        <MeetingModal
+          nodeRef={meetingModalRef}
+          setShowOverlay={setShowOverlay}
+          setShowMeetingModal={setShowMeetingModal}
+          setMeeting={setMeeting}
+          meeting={meeting}
+          socket={socket}
+        />
+      </CSSTransition>
+      {showMeetingModal && (
+        <JitsiMeeting
+          roomName={jitsiRoom}
+          configOverwrite={{
+            startWithAudioMuted: true,
+            startWithVideoMuted: true,
+          }}
+          userInfo={{ displayName: "MentorLink User" }}
+        />
+      )}
 
-    const socket = useContext(SocketContext);
-
-    return (
-        <div className="meeting-form-container">
-            <CSSTransition
-                nodeRef={overlayRef}
-                in={showOverlay}
-                timeout={300}
-                classNames="overlay"
-                unmountOnExit
-            >
-                <ModalOverlay nodeRef={overlayRef} />
-            </CSSTransition>
-            <CSSTransition
-                nodeRef={meetingModalRef}
-                in={showMeetingModal}
-                timeout={300}
-                classNames="modal"
-                unmountOnExit
-            >
-                <MeetingModal
-                    nodeRef={meetingModalRef}
-                    setShowOverlay={setShowOverlay}
-                    setShowMeetingModal={setShowMeetingModal}
-                    setMeeting={setMeeting}
-                    meeting={meeting}
-                    socket={socket}
-                />
-            </CSSTransition>
-            
-            <div className="form-card">
-                <h3 className="form-title">Schedule a meeting</h3>
-                <form onSubmit={handleSubmit}>
-                    <div className={`form-group ${meeting.description ? 'has-value' : ''} ${focused.description ? 'focused' : ''}`}>
-                        <div className="input-container">
-                            <textarea
-                                onChange={handleChange}
-                                value={meeting.description}
-                                required
-                                name="description"
-                                id="description"
-                                rows={4}
-                                placeholder="Meeting description"
-                                onFocus={() => setFocused({...focused, description: true})}
-                                onBlur={() => setFocused({...focused, description: false})}
-                            ></textarea>
-                            <label htmlFor="description">Meeting description</label>
-                        </div>
-                    </div>
-
-                    <div className={`form-group ${meeting.url ? 'has-value' : ''} ${focused.url ? 'focused' : ''}`}>
-                        <div className="input-container">
-                            <input
-                                required
-                                onChange={handleChange}
-                                value={meeting.url}
-                                id="url"
-                                name="url"
-                                type="text"
-                                placeholder="Meeting link"
-                                onFocus={() => setFocused({...focused, url: true})}
-                                onBlur={() => setFocused({...focused, url: false})}
-                            />
-                            <label htmlFor="url">Meeting URL</label>
-                            <div className="input-icon">
-                                <LinkIcon />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="form-group date-picker">
-                        <DTP date={meeting.date} handleDateChange={handleDateChange} />
-                        {meeting.date && <label className="date-label">Meeting date and time</label>}
-                        {!isValidDateTime && <p className="error-message">Invalid time - Please select a future date</p>}
-                        {!dateProvided && <p className="required-message">Please select a date and time</p>}
-                    </div>
-
-                    <div className="submit-container">
-                        <button type="submit" className="submit-button">
-                            <EventIcon fontSize="small" />
-                            <span>Schedule Meeting</span>
-                        </button>
-                    </div>
-                </form>
+      <div className="form-card">
+        <h3 className="form-title">Schedule a meeting</h3>
+        <form onSubmit={handleSubmit}>
+          <div
+            className={`form-group ${meeting.description ? "has-value" : ""} ${
+              focused.description ? "focused" : ""
+            }`}
+          >
+            <div className="input-container">
+              <textarea
+                onChange={handleChange}
+                value={meeting.description}
+                required
+                name="description"
+                id="description"
+                rows={4}
+                placeholder="Meeting description"
+                onFocus={() => setFocused({ ...focused, description: true })}
+                onBlur={() => setFocused({ ...focused, description: false })}
+              ></textarea>
+              <label htmlFor="description">Meeting description</label>
             </div>
-        </div>
-    );
+          </div>
+
+          <div
+            className={`form-group ${meeting.url ? "has-value" : ""} ${
+              focused.url ? "focused" : ""
+            }`}
+          >
+            <div className="input-container">
+              <input
+                required
+                onChange={handleChange}
+                value={meeting.url}
+                id="url"
+                name="url"
+                type="text"
+                placeholder="Meeting link"
+                onFocus={() => setFocused({ ...focused, url: true })}
+                onBlur={() => setFocused({ ...focused, url: false })}
+                readOnly
+              />
+              <label htmlFor="url">Meeting URL</label>
+              <div className="input-icon">
+                <LinkIcon />
+              </div>
+            </div>
+          </div>
+
+          <div className="form-group date-picker">
+            <DTP date={meeting.date} handleDateChange={handleDateChange} />
+            {meeting.date && (
+              <label className="date-label">Meeting date and time</label>
+            )}
+            {!isValidDateTime && (
+              <p className="error-message">
+                Invalid time - Please select a future date
+              </p>
+            )}
+            {!dateProvided && (
+              <p className="required-message">Please select a date and time</p>
+            )}
+          </div>
+
+          <div className="submit-container">
+            <button type="submit" className="submit-button">
+              <EventIcon fontSize="small" />
+              <span>Schedule Meeting</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default MeetingForm;
